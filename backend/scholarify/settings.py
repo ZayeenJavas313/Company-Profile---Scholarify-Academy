@@ -88,6 +88,16 @@ CORS_ALLOWED_ORIGINS = [
     "https://frontend-scholarify-zayeenjavas313s-projects.vercel.app",
 ]
 
+# Allow cookies to be sent in cross-site requests when credentials mode is 'include'
+CORS_ALLOW_CREDENTIALS = True
+
+# Cookie settings for local development. Note: SameSite=None requires Secure=True in browsers,
+# so for local HTTP development we use 'Lax' to be compatible. Adjust for production.
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
