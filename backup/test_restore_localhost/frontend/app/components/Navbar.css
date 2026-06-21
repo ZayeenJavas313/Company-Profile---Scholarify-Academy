@@ -1,0 +1,108 @@
+/* Navbar.css — cleaned & responsive */
+:root {
+  --brand: #eec0a3;
+  --brand-dark: #d9a684;
+  --ink: #4b2f1f;
+}
+
+/* BAR UTAMA */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #ffffff;
+  padding: 12px 32px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* efek kaca bila didukung */
+@supports (backdrop-filter: blur(6px)) {
+  .navbar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* CONTAINER */
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* BRAND / LOGO */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.navbar-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* BUTTON WRAPPER */
+.navbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* BUTTONS */
+.login-btn,
+.logout-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--brand);
+  color: var(--ink);
+  background-color: transparent;
+}
+
+.login-btn:hover,
+.logout-btn:hover {
+  background-color: var(--brand);
+  color: var(--ink);
+  box-shadow: 0 8px 20px rgba(78, 47, 31, 0.15);
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .navbar {
+    padding: 10px 16px;
+  }
+  .navbar-title {
+    font-size: 1.2rem;
+  }
+  .navbar-buttons {
+    gap: 0.5rem;
+  }
+  .login-btn,
+  .logout-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* AKSESIBILITAS: kurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+  .login-btn,
+  .logout-btn {
+    transition: none !important;
+  }
+}

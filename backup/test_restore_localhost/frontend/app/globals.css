@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap'); 
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #E59E72;  /* Soft orange */
+  --accent-color: #E59E72;   /* Same as primary for consistency */
+  --light-gray: #f2f2f2;
+  --dark-gray: #333;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--light-gray);
+}
+
+/* Form Login Styles */
+input[type="text"],
+input[type="password"] {
+  padding: 12px 15px;  /* Memberikan ruang antara teks dan border */
+  border-radius: 8px;  /* Membuat border melengkung */
+  border: 1px solid #ccc;  /* Border yang lebih halus */
+  outline: none;  /* Menghilangkan outline default */
+  width: 100%;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: var(--primary-color);  /* Warna border saat fokus diubah */
+  box-shadow: 0 0 5px rgba(229, 158, 114, 0.2);  /* Efek glow dengan warna utama */
+}
+
+/* Styling untuk tombol login */
+button[type="submit"]{
+  background-color: var(--primary-color); /* Updated to soft orange */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 12px;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #c47a49;  /* Slightly darker shade for hover */
+}
+
+/* Tambahkan efek saat fokus di input field */
+input[type="text"]:focus, input[type="password"]:focus {
+  border-color: var(--accent-color); /* Focus border updated to orange */
+  box-shadow: 0 0 5px rgba(229, 158, 114, 0.6);
+}
+
+/* Styling label untuk input */
+label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151; /* Dark color for text */
+  margin-bottom: 5px;
+}

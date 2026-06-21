@@ -1,0 +1,34 @@
+/* Form Login Styles */
+input[type="text"],
+input[type="password"] {
+  padding: 12px 15px;  /* Memberikan ruang antara teks dan border */
+  border-radius: 8px;  /* Membuat border melengkung */
+  border: 1px solid #ccc;  /* Border yang lebih halus */
+  outline: none;  /* Menghilangkan outline default */
+  width: 100%;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: #E59E72;  /* Soft Orange color for border focus */
+  box-shadow: 0 0 5px rgba(229, 158, 114, 0.2);  /* Soft orange glow effect */
+}
+
+/button[type="submit"] {
+  background-color: #E59E72;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 12px;
+  transition: background-color 0.3s ease;
+}
+* Styling untuk tombol login */
+
+button:hover {
+  background-color: #c47a49; /* Slightly darker for hover effect */
+}

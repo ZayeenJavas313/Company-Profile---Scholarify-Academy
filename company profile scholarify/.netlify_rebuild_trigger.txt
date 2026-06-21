@@ -1,4 +1,0 @@
-Netlify rebuild trigger
-Timestamp: 2025-11-24T16:52:00+07:00
-
-This file is a no-op commit used to trigger a fresh Netlify build and clear any cached module state.
