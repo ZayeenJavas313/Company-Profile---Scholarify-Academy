@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <title>Seed Data - Scholarify CMS</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Inter, sans-serif; background: #17253A; color: #e2e8f0; padding: 40px; max-width: 800px; margin: 0 auto; }
+    h1 { font-family: Outfit, sans-serif; color: #fff; }
+    .card { background: #1e2d4a; border-radius: 12px; padding: 24px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08); }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    input, textarea, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: #0a0f1a; color: #fff; margin-bottom: 16px; font-size: 14px; }
+    textarea { min-height: 80px; }
+    button { background: #14B8A6; color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+    button:hover { background: #0D9488; }
+    .status { padding: 12px; border-radius: 8px; margin-top: 16px; }
+    .success { background: rgba(20,184,166,0.2); border: 1px solid #14B8A6; }
+    .error { background: rgba(239,68,68,0.2); border: 1px solid #ef4444; }
+    pre { background: #0a0f1a; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Scholarify — Seed Data ke Sanity</h1>
+  <p>Gunakan halaman ini untuk memasukkan data awal Mentor, Testimoni, dan Berita ke Sanity Studio.</p>
+
+  <div class="card">
+    <h3>🔑 Koneksi Sanity</h3>
+    <label>Project ID Sanity</label>
+    <input type="text" id="projectId" placeholder="ex: abc123xy" />
+    <label>Dataset</label>
+    <input type="text" id="dataset" value="production" />
+    <label>Token Write (dari manage.sanity.io → API → Tokens → Add API token dengan access Editor)</label>
+    <input type="password" id="token" placeholder="skXXXXXXXXXXXXXXXXXXXX" />
+  </div>
+
+  <button onclick="seedAll()">🚀 Seed Semua Data Sekarang</button>
+  <div id="status"></div>
+
+  <script>
+    const SANITY_API = 'https://' + '{{projectId}}'.api.sanity.io/v2024-01-01/data/mutate/{{dataset}}';
+
+    function getConfig() {
+      const projectId = document.getElementById('projectId').value.trim();
+      const dataset = document.getElementById('dataset').value.trim();
+      const token = document.getElementById('token').value.trim();
+      if (!projectId || !token) {
+        throw new Error('Project ID dan Token wajib diisi');
+      }
+      return { projectId, dataset, token };
+    }
+
+    function mutate(operations, config) {
+      return fetch('https://' + config.projectId + '.api.sanity.io/v2024-01-01/data/mutate/' + config.dataset, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + config.token,
+        },
+        body: JSON.stringify({ mutations: operations }),
+      }).then(r => r.json());
+    }
+
+    // ===== DATA =====
+    const MENTORS = [
+      { nama: 'Rifai', jabatan: 'Commercial', kampus: 'UGM', kategori: 'tim-inti', urutan: 1 },
+      { nama: 'Tegar', jabatan: 'Co-Founder', kampus: 'UGM', kategori: 'tim-inti', urutan: 2 },
+      { nama: 'Maldini', jabatan: 'Founder & Lead Instructor', kampus: 'UGM', kategori: 'tim-inti', urutan: 3 },
+      { nama: 'Almas', jabatan: 'Co-Founder', kampus: 'UGM', kategori: 'tim-inti', urutan: 4 },
+      { nama: 'Rendi', jabatan: 'Digital Media', kampus: 'UGM', kategori: 'tim-inti', urutan: 5 },
+      { nama: 'Fahreza', jabatan: 'Kepala Tentor', kampus: 'UGM', kategori: 'tim-mentor', urutan: 1 },
+      { nama: 'Nayla', jabatan: 'Bahasa Indonesia & Inggris', kampus: 'UGM', kategori: 'tim-mentor', urutan: 2 },
+      { nama: 'Wildan', jabatan: 'Soshum & Bahasa Inggris', kampus: 'UGM', kategori: 'tim-mentor', urutan: 3 },
+      { nama: 'Farrel', jabatan: 'Bahasa Inggris', kampus: 'UGM', kategori: 'tim-mentor', urutan: 4 },
+      { nama: 'Salma', jabatan: 'Matematika', kampus: 'UNY', kategori: 'tim-mentor', urutan: 5 },
+      { nama: 'Salwa', jabatan: 'Bahasa Inggris', kampus: 'UNY', kategori: 'tim-mentor', urutan: 6 },
+      { nama: 'Hanief', jabatan: 'Kimia', kampus: 'UGM', kategori: 'tim-mentor', urutan: 7 },
+      { nama: 'Rara', jabatan: 'Soshum, Bahasa Indonesia, Bahasa Inggris', kampus: 'UGM', kategori: 'tim-mentor', urutan: 8 },
+      { nama: 'Aini', jabatan: 'Biologi & Bahasa Inggris', kampus: 'UGM', kategori: 'tim-mentor', urutan: 9 },
+    ];
+
+    const TESTIMONIALS = [
+      {
+        nama: 'Melvina AV',
+        asalKampus: 'Shanghai University (上海大学)',
+        isi: 'Dari seorang yang tidak ada dasar Calculus sama sekali sampai bisa memahami materi dengan jelas. Tentornya sabar & jelasin sampai paham. Kelas ini sangat aku sarankan bagi yang bingung mau mulai dari mana.',
+        rating: 5,
+      },
+      {
+        nama: 'Aurelia Aisya Rachma',
+        asalKampus: 'Telkom University',
+        isi: 'Belajar di Scholarify bener-bener membantu banget! Pematerinya keren, cara ngajarnya jelas, sabar, & gampang dipahami. Materi dari basic sampai advanced semua lengkap di sini. Pokoknya puas banget!',
+        rating: 5,
+      },
+      {
+        nama: 'Celine',
+        asalKampus: 'Shanghai University (上海大学)',
+        isi: 'Suka banget sama cara ngajarnya! Kakanya super baik dan ramahh, jadi ga sungkan buat nanya. Penjelasannya juga jelas dan ga rumit jadi materinya gampang dimengerti. Kakaknya juga selalu ajak diskusi dan komunikatif',
+        rating: 5,
+      },
+    ];
+
+    function buildOps() {
+      const ops = [];
+      MENTORS.forEach(m => {
+        ops.push({ create: { _type: 'mentor', ...m } });
+      });
+      TESTIMONIALS.forEach(t => {
+        ops.push({ create: { _type: 'testimonial', ...t } });
+      });
+      ops.push({
+        create: {
+          _type: 'news',
+          judul: 'Scholarify Resmi Dibuka!',
+          tanggal: new Date().toISOString().split('T')[0],
+          ringkasan: 'Scholarify hadir sebagai platform bimbingan belajar untuk membantu siswa mencapai kampus impian mereka.',
+          urutan: 1,
+        }
+      });
+      return ops;
+    }
+
+    async function seedAll() {
+      const status = document.getElementById('status');
+      status.className = 'status';
+      status.innerHTML = '⏳ Mengirim data ke Sanity...';
+
+      let config;
+      try {
+        config = getConfig();
+      } catch (e) {
+        status.className = 'status error';
+        status.innerHTML = '❌ ' + e.message;
+        return;
+      }
+
+      const operations = buildOps();
+
+      // Split into batches of 10
+      const batchSize = 10;
+      let success = 0;
+      let errors = [];
+
+      for (let i = 0; i < operations.length; i += batchSize) {
+        const batch = operations.slice(i, i + batchSize);
+        try {
+          const res = await mutate(batch, config);
+          if (res.error) {
+            errors.push(res.error.description || JSON.stringify(res.error));
+          } else {
+            success += batch.length;
+          }
+        } catch (err) {
+          errors.push(err.message);
+        }
+        status.innerHTML = '⏳ Progress: ' + success + ' / ' + operations.length + ' dokumen...';
+      }
+
+      if (errors.length === 0) {
+        status.className = 'status success';
+        status.innerHTML = '✅ Sukses! ' + success + ' dokumen berhasil dibuat. <br><br>Sekarang kamu bisa login ke Sanity Studio untuk upload foto dan edit data.';
+      } else {
+        status.className = 'status error';
+        status.innerHTML = '⚠️ ' + success + ' berhasil, ' + errors.length + ' gagal.<br>' + errors.join('<br>');
+      }
+    }
+  </script>
+  <hr style="border-color:rgba(255,255,255,0.08);margin:40px 0">
+  <h3>📋 Panduan Singkat</h3>
+  <ol style="color:#94a3b8;line-height:2">
+    <li>Buka <a href="https://manage.sanity.io" target="_blank" style="color:#14B8A6">manage.sanity.io</a> → login → buat project baru</li>
+    <li>Copy <strong>Project ID</strong> dan isi di form di atas</li>
+    <li>Buat <strong>API token</strong> (Settings → API → Add token, pilih akses <strong>Editor</strong>)</li>
+    <li>Isi token, lalu klik "Seed Semua Data Sekarang"</li>
+    <li>Upload foto via Sanity Studio di <code style="background:#0a0f1a;padding:2px 6px;border-radius:4px">https://[projectId].sanity.studio</code></li>
+  </ol>
+</body>
+</html>
