@@ -137,8 +137,10 @@
 
     if (isLoggedIn) {
       injectActionButtons();
+      document.body.classList.add('admin-logged-in');
     } else {
       removeActionButtons();
+      document.body.classList.remove('admin-logged-in');
     }
   }
 
@@ -149,8 +151,8 @@
       var actions = document.createElement('div');
       actions.className = 'admin-actions';
       actions.innerHTML =
-        '<button class="admin-btn-edit" data-type="mentor" title="Edit">✎</button>' +
-        '<button class="admin-btn-delete" data-type="mentor" title="Hapus">✕</button>';
+        '<button class="admin-btn-edit" data-type="mentor" title="Edit">✎ Edit</button>' +
+        '<button class="admin-btn-delete" data-type="mentor" title="Hapus">✕ Hapus</button>';
       card.style.position = 'relative';
       card.appendChild(actions);
     });
@@ -161,8 +163,8 @@
       var actions = document.createElement('div');
       actions.className = 'admin-actions';
       actions.innerHTML =
-        '<button class="admin-btn-edit" data-type="testimonial" title="Edit">✎</button>' +
-        '<button class="admin-btn-delete" data-type="testimonial" title="Hapus">✕</button>';
+        '<button class="admin-btn-edit" data-type="testimonial" title="Edit">✎ Edit</button>' +
+        '<button class="admin-btn-delete" data-type="testimonial" title="Hapus">✕ Hapus</button>';
       card.style.position = 'relative';
       card.appendChild(actions);
     });
@@ -173,8 +175,8 @@
       var actions = document.createElement('div');
       actions.className = 'admin-actions';
       actions.innerHTML =
-        '<button class="admin-btn-edit" data-type="news" title="Edit">✎</button>' +
-        '<button class="admin-btn-delete" data-type="news" title="Hapus">✕</button>';
+        '<button class="admin-btn-edit" data-type="news" title="Edit">✎ Edit</button>' +
+        '<button class="admin-btn-delete" data-type="news" title="Hapus">✕ Hapus</button>';
       card.style.position = 'relative';
       card.appendChild(actions);
     });
@@ -456,25 +458,63 @@
       label = 'berita "' + (titleEl ? titleEl.textContent : '') + '"';
     }
 
-    if (!confirm('Hapus ' + label + '? Tindakan ini tidak bisa dibatalkan.')) return;
+    var overlay = document.getElementById('admin-overlay');
+    var modal = document.getElementById('admin-modal');
+    if (!overlay || !modal) return;
 
-    var url = '/api/' + type + 's/' + (id || '');
+    overlay.classList.remove('hidden');
+    modal.classList.remove('hidden');
+    currentModal = 'confirm-delete';
+    modal.innerHTML =
+      '<div class="admin-modal-content" style="max-width:400px;text-align:center">' +
+      '<div style="font-size:48px;margin-bottom:12px">🗑️</div>' +
+      '<h3 style="margin:0 0 8px;font-family:var(--font-heading)">Hapus ' + label + '?</h3>' +
+      '<p style="color:var(--color-muted);font-size:14px;margin:0 0 20px">Tindakan ini tidak bisa dibatalkan.</p>' +
+      '<div id="delete-status" style="font-size:14px;margin-bottom:12px;display:none"></div>' +
+      '<div style="display:flex;gap:10px">' +
+      '<button id="delete-yes" class="liquid-glass" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;background:#ef4444;color:#fff">Ya, Hapus</button>' +
+      '<button id="delete-no" style="padding:10px 20px;border:1px solid var(--color-card-border);border-radius:8px;background:transparent;color:var(--color-card-text);cursor:pointer;font-size:15px">Batal</button>' +
+      '</div></div>';
 
-    fetch(url, {
-      method: 'DELETE',
-      credentials: 'same-origin',
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.success) {
-          if (typeof refreshScholarifyData === 'function') refreshScholarifyData();
-        } else {
-          alert('Gagal menghapus: ' + (data.error || 'Unknown'));
-        }
+    $('#delete-yes').addEventListener('click', function () {
+      var statusEl = $('#delete-status');
+      var btnYes = $('#delete-yes');
+      btnYes.disabled = true;
+      btnYes.textContent = 'Menghapus...';
+      statusEl.style.display = 'none';
+
+      var url = '/api/' + type + 's/' + (id || '');
+      fetch(url, {
+        method: 'DELETE',
+        credentials: 'same-origin',
       })
-      .catch(function () {
-        alert('Terjadi kesalahan jaringan.');
-      });
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            statusEl.textContent = '✓ Berhasil dihapus!';
+            statusEl.style.display = 'block';
+            statusEl.style.color = '#14B8A6';
+            setTimeout(function () {
+              hideModal();
+              if (typeof refreshScholarifyData === 'function') refreshScholarifyData();
+            }, 800);
+          } else {
+            statusEl.textContent = 'Gagal: ' + (data.error || 'Unknown');
+            statusEl.style.display = 'block';
+            statusEl.style.color = '#ef4444';
+            btnYes.disabled = false;
+            btnYes.textContent = 'Ya, Hapus';
+          }
+        })
+        .catch(function () {
+          statusEl.textContent = 'Terjadi kesalahan jaringan.';
+          statusEl.style.display = 'block';
+          statusEl.style.color = '#ef4444';
+          btnYes.disabled = false;
+          btnYes.textContent = 'Ya, Hapus';
+        });
+    });
+    $('#delete-no').addEventListener('click', hideModal);
   }
 
   // ===== MODAL =====

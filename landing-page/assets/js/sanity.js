@@ -15,10 +15,13 @@
   function imgUrl(ref, w) {
     if (!ref) return '';
     w = w || 400;
-    var parts = ref.replace('image-', '').split('-');
-    var id = parts[0];
-    var format = parts[parts.length - 1];
-    return 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + id + '-' + w + 'x' + w + '.' + format;
+    var base = ref.replace(/^image-/, '');
+    var lastDash = base.lastIndexOf('-');
+    var format = base.substring(lastDash + 1);
+    var rest = base.substring(0, lastDash);
+    var dimDash = rest.lastIndexOf('-');
+    var imageId = rest.substring(0, dimDash);
+    return 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + imageId + '-' + w + 'x' + w + '.' + format;
   }
 
   function createEl(tag, attrs, html) {

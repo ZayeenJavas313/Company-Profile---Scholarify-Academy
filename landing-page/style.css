@@ -5241,29 +5241,27 @@ h1, h2, h3, h4, h5, h6 {
   top: 8px;
   right: 8px;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   z-index: 100;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.team-member:hover .admin-actions,
-.testi-card-new:hover .admin-actions,
-.news-card:hover .admin-actions {
+.admin-logged-in .admin-actions {
   opacity: 1;
 }
 
 .admin-btn-edit,
 .admin-btn-delete {
-  width: 32px;
-  height: 32px;
+  padding: 6px 12px;
   border-radius: 8px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
   background: var(--color-card-bg);
   color: var(--color-card-text);
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -5272,6 +5270,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .admin-btn-edit {
   color: var(--teal);
+  border: 1px solid var(--teal);
 }
 
 .admin-btn-edit:hover {
@@ -5281,11 +5280,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .admin-btn-delete {
   color: #ef4444;
+  border: 1px solid #ef4444;
 }
 
 .admin-btn-delete:hover {
   background: #ef4444;
   color: #fff;
+}
+
+.admin-btn-edit,
+.admin-btn-delete {
+  min-width: 80px;
+  justify-content: center;
 }
 
 .admin-add-btn {
