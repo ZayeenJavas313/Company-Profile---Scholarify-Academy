@@ -43,8 +43,22 @@
         <span style="margin-left:6px;font-size:13px">Login Admin</span>
       </button>
       <a href="https://e-ujian.com/Scholarify" target="_blank" rel="noreferrer" class="liquid-glass btn-journey">Mulai Tryout</a>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </div>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="#hero">Beranda</a>
+    <a href="#features">Layanan</a>
+    <a href="#programs">Program</a>
+    <a href="#team">Tim</a>
+    <a href="#testimonials">Testimoni</a>
+    <a href="#news">Berita</a>
+    <a href="#footer">Kontak</a>
+  </nav>
 </header>
 
 
@@ -872,3 +886,23 @@ window.addEventListener('load', function() {
 </script>
 
 <script>document.documentElement.classList.add('light');</script>
+
+<script>
+(function() {
+  var hamburger = document.getElementById('navHamburger');
+  var navMobile = document.getElementById('navMobile');
+  if (!hamburger || !navMobile) return;
+
+  hamburger.addEventListener('click', function() {
+    hamburger.classList.toggle('active');
+    navMobile.classList.toggle('open');
+  });
+
+  navMobile.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      hamburger.classList.remove('active');
+      navMobile.classList.remove('open');
+    });
+  });
+})();
+</script>
