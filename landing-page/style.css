@@ -4724,7 +4724,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 16px 32px;
+  padding: 20px 40px;
   background: rgba(0, 10, 25, 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -4741,7 +4741,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-glass-brand {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 400;
   color: #fff;
   text-decoration: none;
@@ -4752,14 +4752,14 @@ h1, h2, h3, h4, h5, h6 {
 .nav-glass-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
 }
 
 .nav-glass-links a {
   color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 16px;
+  font-weight: 500;
   font-family: var(--font-body);
   transition: color 0.2s ease;
 }
@@ -4772,13 +4772,13 @@ h1, h2, h3, h4, h5, h6 {
 .nav-glass-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .btn-journey {
-  padding: 10px 24px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
   color: #fff;
   text-decoration: none;
   border-radius: 999px;
@@ -4976,7 +4976,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ========== RESPONSIVE GLASS NAV & HERO ========== */
 @media (max-width: 768px) {
   .nav-glass {
-    padding: 10px 12px;
+    padding: 14px 16px;
   }
 
   .nav-glass-links {
@@ -4988,16 +4988,16 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-glass-brand {
-    font-size: 22px;
+    font-size: 26px;
   }
 
   .nav-glass-actions {
-    gap: 6px;
+    gap: 10px;
   }
 
   .nav-glass-actions .btn-journey {
-    padding: 5px 10px;
-    font-size: 11px;
+    padding: 8px 18px;
+    font-size: 14px;
     white-space: nowrap;
   }
 
@@ -5006,13 +5006,13 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-hamburger {
-    gap: 4px;
-    padding: 2px;
+    gap: 5px;
+    padding: 4px;
   }
 
   .nav-hamburger span {
-    width: 18px;
-    height: 2px;
+    width: 22px;
+    height: 2.5px;
   }
 
   .hero-cinematic-title {
@@ -5035,8 +5035,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .btn-journey {
-    padding: 8px 18px;
-    font-size: 13px;
+    padding: 10px 22px;
+    font-size: 15px;
   }
 }
 
