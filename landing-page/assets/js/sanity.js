@@ -245,7 +245,7 @@
     var qTestis = '*[_type == "testimonial"] { ..., "fotoUrl": foto.asset->url }';
     var qNews = '*[_type == "news"] | order(tanggal desc) { ..., "gambarUrl": gambar.asset->url }';
 
-    Promise.all([q(qMentors), q(qTestis), q(qNews)])
+    return Promise.all([q(qMentors), q(qTestis), q(qNews)])
       .then(function (results) {
         var mentors = results[0].result || [];
         var testis = results[1].result || [];

@@ -558,10 +558,9 @@
   var origRefresh = window.refreshScholarifyData;
   if (origRefresh) {
     window.refreshScholarifyData = function () {
-      origRefresh();
-      setTimeout(function () {
+      return (origRefresh() || Promise.resolve()).then(function () {
         if (isLoggedIn) injectActionButtons();
-      }, 500);
+      });
     };
   }
 })();
