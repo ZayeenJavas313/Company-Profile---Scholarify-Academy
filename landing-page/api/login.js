@@ -69,9 +69,13 @@ module.exports = async (req, res) => {
     { expiresIn: COOKIE_MAX_AGE }
   );
 
+  const isSecure = req.headers['x-forwarded-proto'] === 'https' || req.connection.encrypted;
+  var cookieOpts = 'HttpOnly; SameSite=Strict; Path=/; Max-Age=' + COOKIE_MAX_AGE;
+  if (isSecure) cookieOpts += '; Secure';
+
   res.setHeader('Set-Cookie', [
-    `scholarify_session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
-    `scholarify_logged_in=true; Secure; SameSite=Strict; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
+    'scholarify_session=' + token + '; ' + cookieOpts,
+    'scholarify_logged_in=true; ' + cookieOpts,
   ]);
 
   res.statusCode = 200;

@@ -24,6 +24,20 @@
     return 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + imageId + '-' + w + 'x' + w + '.' + format;
   }
 
+  function resolveImg(item, field, w) {
+    w = w || 400;
+    if (!item) return '';
+    if (item[field + 'Url']) {
+      var url = item[field + 'Url'];
+      if (url.indexOf('?') === -1) return url + '?w=' + w;
+      return url;
+    }
+    var img = item[field];
+    if (!img) return '';
+    var ref = (img.asset && img.asset._ref) || img._ref || '';
+    return imgUrl(ref, w);
+  }
+
   function createEl(tag, attrs, html) {
     var el = document.createElement(tag);
     if (attrs) {
@@ -70,10 +84,10 @@
       timInti.forEach(function (m, idx) {
         var isFounder = m.jabatan && m.jabatan.toLowerCase().indexOf('founder') !== -1;
         var cardClass = isFounder ? 'team-member founder-card' : 'team-member';
-        var foto = imgUrl(m.foto ? m.foto.asset && m.foto.asset._ref || (m.foto._ref || '') : '', 300);
-        var logo = m.logoKampus ? imgUrl(m.logoKampus.asset && m.logoKampus.asset._ref || (m.logoKampus._ref || ''), 32) : '';
+        var foto = resolveImg(m, 'foto', 300);
+        var logo = resolveImg(m, 'logoKampus', 32);
 
-        var html = '<img src="' + foto + '" alt="' + m.nama + '" class="team-member-img" loading="lazy">' +
+        var html = '<img src="' + foto + '" alt="' + m.nama + '" class="team-member-img" loading="lazy" onerror="this.style.display=\'none\'">' +
           '<div class="team-member-info">' +
           '<h4 class="team-member-name">' + m.nama + '</h4>' +
           '<p class="team-member-role">' + m.jabatan + '</p>' +
@@ -93,10 +107,10 @@
       mentorContainer.innerHTML = '';
       var mentorGrid = createEl('div', { className: 'team-tentors-grid' });
       timMentor.forEach(function (m) {
-        var foto = imgUrl(m.foto ? m.foto.asset && m.foto.asset._ref || (m.foto._ref || '') : '', 300);
-        var logo = m.logoKampus ? imgUrl(m.logoKampus.asset && m.logoKampus.asset._ref || (m.logoKampus._ref || ''), 32) : '';
+        var foto = resolveImg(m, 'foto', 300);
+        var logo = resolveImg(m, 'logoKampus', 32);
 
-        var html = '<img src="' + foto + '" alt="' + m.nama + '" class="team-member-img" loading="lazy">' +
+        var html = '<img src="' + foto + '" alt="' + m.nama + '" class="team-member-img" loading="lazy" onerror="this.style.display=\'none\'">' +
           '<div class="team-member-info">' +
           '<h4 class="team-member-name">' + m.nama + '</h4>' +
           '<p class="team-member-role">' + m.jabatan + '</p>' +
@@ -136,7 +150,7 @@
         var stars = '';
         var rating = t.rating || 5;
         for (var s = 0; s < rating; s++) stars += '<span class="star">★</span>';
-        var pic = t.foto ? imgUrl(t.foto.asset && t.foto.asset._ref || (t.foto._ref || ''), 100) : '';
+        var pic = resolveImg(t, 'foto', 100);
         var avatarHtml = pic
           ? '<img class="testi-avatar-img" src="' + pic + '" alt="' + t.nama + '" loading="lazy" />'
           : '<div class="testi-avatar-new">' + t.nama.charAt(0) + '</div>';
@@ -180,7 +194,7 @@
 
     var grid = createEl('div', { className: 'news-grid' });
     items.forEach(function (item) {
-      var pic = item.gambar ? imgUrl(item.gambar.asset && item.gambar.asset._ref || (item.gambar._ref || ''), 600) : '';
+      var pic = resolveImg(item, 'gambar', 600);
       var date = item.tanggal || '';
       if (date) {
         var parts = date.split('-');
@@ -227,9 +241,9 @@
   function fetchAllAndRender() {
     showLoading(['team-core-container', 'team-mentor-container', 'testi-scroll-container', 'news-container']);
 
-    var qMentors = '*[_type == "mentor"] | order(urutan asc)';
-    var qTestis = '*[_type == "testimonial"]';
-    var qNews = '*[_type == "news"] | order(tanggal desc)';
+    var qMentors = '*[_type == "mentor"] | order(urutan asc) { ..., "fotoUrl": foto.asset->url, "logoKampusUrl": logoKampus.asset->url }';
+    var qTestis = '*[_type == "testimonial"] { ..., "fotoUrl": foto.asset->url }';
+    var qNews = '*[_type == "news"] | order(tanggal desc) { ..., "gambarUrl": gambar.asset->url }';
 
     Promise.all([q(qMentors), q(qTestis), q(qNews)])
       .then(function (results) {
