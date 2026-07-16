@@ -39,8 +39,6 @@
   <div id="status"></div>
 
   <script>
-    const SANITY_API = 'https://' + '{{projectId}}'.api.sanity.io/v2024-01-01/data/mutate/{{dataset}}';
-
     function getConfig() {
       const projectId = document.getElementById('projectId').value.trim();
       const dataset = document.getElementById('dataset').value.trim();

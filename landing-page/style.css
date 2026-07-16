@@ -837,23 +837,7 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none;
 }
 
-/* Background dengan gambar hero-student */
-.hero-bg{
-  position: absolute;
-  inset: 0;
-  /* Mencoba beberapa variasi path dan ekstensi */
-  background-image: 
-    url('assets/hero-student.jpg'),
-    url('assets/hero-student.png'),
-    url('assets/hero-student.webp'),
-    url('assets/hero-student');
-  background-size: cover;
-  background-position: center;
-  /* Efek warm: sepia untuk tone hangat/emas, saturation untuk warna lebih lembut, brightness untuk nuansa hangat */
-  filter: sepia(50%) saturate(105%) brightness(98%) hue-rotate(-3deg);
-  -webkit-filter: sepia(50%) saturate(105%) brightness(98%) hue-rotate(-3deg);
-  z-index: -2;
-}
+/* Hero background - using video */
 
 .hero-overlay {
   position: absolute;
