@@ -4976,7 +4976,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ========== RESPONSIVE GLASS NAV & HERO ========== */
 @media (max-width: 768px) {
   .nav-glass {
-    padding: 12px 16px;
+    padding: 10px 12px;
   }
 
   .nav-glass-links {
@@ -4991,13 +4991,39 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 22px;
   }
 
+  .nav-glass-actions {
+    gap: 6px;
+  }
+
   .nav-glass-actions .btn-journey {
-    padding: 6px 14px;
-    font-size: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .nav-glass-actions #admin-login-btn {
+    padding: 4px;
+    font-size: 0;
+    line-height: 0;
+  }
+
+  .nav-glass-actions #admin-login-btn svg {
+    width: 20px;
+    height: 20px;
   }
 
   .nav-glass-actions #admin-login-btn span {
     display: none;
+  }
+
+  .nav-hamburger {
+    gap: 4px;
+    padding: 2px;
+  }
+
+  .nav-hamburger span {
+    width: 18px;
+    height: 2px;
   }
 
   .hero-cinematic-title {
