@@ -5298,6 +5298,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  color: #fff;
 }
 
 /* Admin link in footer */
