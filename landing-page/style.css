@@ -5001,6 +5001,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-glass-actions .btn-journey {
+    flex-shrink: 0;
+    overflow: visible;
     padding: 6px 14px;
     font-size: 13px;
     white-space: nowrap;
@@ -5059,6 +5061,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-glass-actions .btn-journey {
+    flex-shrink: 0;
+    overflow: visible;
     padding: 5px 10px;
     font-size: 11px;
   }
