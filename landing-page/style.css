@@ -4979,6 +4979,10 @@ h1, h2, h3, h4, h5, h6 {
     padding: 14px 16px;
   }
 
+  .nav-glass-inner {
+    width: 100%;
+  }
+
   .nav-glass-links {
     display: none;
   }
@@ -4988,16 +4992,17 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-glass-brand {
-    font-size: 26px;
+    font-size: 22px;
   }
 
   .nav-glass-actions {
-    gap: 10px;
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   .nav-glass-actions .btn-journey {
-    padding: 8px 18px;
-    font-size: 14px;
+    padding: 6px 14px;
+    font-size: 13px;
     white-space: nowrap;
   }
 
@@ -5006,12 +5011,12 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-hamburger {
-    gap: 5px;
+    gap: 4px;
     padding: 4px;
   }
 
   .nav-hamburger span {
-    width: 22px;
+    width: 20px;
     height: 2.5px;
   }
 
@@ -5035,8 +5040,36 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .btn-journey {
-    padding: 10px 22px;
-    font-size: 15px;
+    padding: 8px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav-glass {
+    padding: 12px 12px;
+  }
+
+  .nav-glass-brand {
+    font-size: 20px;
+  }
+
+  .nav-glass-actions {
+    gap: 6px;
+  }
+
+  .nav-glass-actions .btn-journey {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .nav-hamburger {
+    padding: 3px;
+  }
+
+  .nav-hamburger span {
+    width: 18px;
+    height: 2px;
   }
 }
 
