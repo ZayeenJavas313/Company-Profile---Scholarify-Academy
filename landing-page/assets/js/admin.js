@@ -430,7 +430,8 @@
         }
 
         var method = id ? 'PATCH' : 'POST';
-        var url = '/api/' + type + 's' + (id ? '/' + id : '');
+        var plural = { mentor: 'mentors', testimonial: 'testimonials', news: 'news' }[type] || type + 's';
+        var url = '/api/' + plural + (id ? '/' + id : '');
 
         return fetch(url, {
           method: method,
@@ -518,7 +519,8 @@
       btnYes.textContent = 'Menghapus...';
       statusEl.style.display = 'none';
 
-      var url = '/api/' + type + 's/' + (id || '');
+      var plural = { mentor: 'mentors', testimonial: 'testimonials', news: 'news' }[type] || type + 's';
+      var url = '/api/' + plural + '/' + (id || '');
       fetch(url, {
         method: 'DELETE',
         credentials: 'same-origin',
