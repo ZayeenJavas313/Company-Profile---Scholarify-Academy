@@ -205,7 +205,19 @@
       }
 
       var newsId = item._id || '';
-      var html = '<div class="news-card" data-id="' + newsId + '">';
+      var isiText = '';
+      if (item.isiLengkap && Array.isArray(item.isiLengkap)) {
+        item.isiLengkap.forEach(function (block) {
+          if (block.children) {
+            block.children.forEach(function (child) {
+              if (child.text) isiText += child.text;
+            });
+            isiText += '\n';
+          }
+        });
+        isiText = isiText.trim();
+      }
+      var html = '<div class="news-card" data-id="' + newsId + '" data-isi-lengkap="' + escapeAttr(isiText) + '">';
       if (pic) {
         html += '<div class="news-image"><img src="' + pic + '" alt="' + item.judul + '" loading="lazy"></div>';
       }
@@ -236,6 +248,11 @@
     var d = document.createElement('div');
     d.appendChild(document.createTextNode(text));
     return d.innerHTML;
+  }
+
+  function escapeAttr(text) {
+    if (!text) return '';
+    return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   // ===== LOADING STATES =====

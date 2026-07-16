@@ -6,6 +6,27 @@ function sanitize(text) {
   return text.replace(/[<>&"']/g, '').trim();
 }
 
+function textToBlocks(text) {
+  if (!text) return undefined;
+  var blocks = [];
+  var paragraphs = text.split(/\n\s*\n/);
+  paragraphs.forEach(function (p) {
+    p = p.trim();
+    if (!p) return;
+    var lines = p.split('\n');
+    lines.forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      blocks.push({
+        _type: 'block',
+        style: 'normal',
+        children: [{ _type: 'span', text: line, marks: [] }],
+      });
+    });
+  });
+  return blocks.length ? blocks : undefined;
+}
+
 module.exports = requireAuth(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
@@ -30,6 +51,7 @@ module.exports = requireAuth(async (req, res) => {
   const tanggal = sanitize(data.tanggal) || new Date().toISOString().split('T')[0];
   const urutan = parseInt(data.urutan, 10) || 1;
   const gambar = data.gambar || null;
+  const isiLengkap = textToBlocks(data.isiLengkap);
 
   if (!judul) {
     res.statusCode = 400;
@@ -40,6 +62,7 @@ module.exports = requireAuth(async (req, res) => {
   try {
     const doc = { _type: 'news', judul, ringkasan, tanggal, urutan };
     if (gambar) doc.gambar = { _type: 'image', asset: { _ref: gambar } };
+    if (isiLengkap) doc.isiLengkap = isiLengkap;
 
     const result = await sanityMutate([{ create: doc }]);
     res.statusCode = 200;

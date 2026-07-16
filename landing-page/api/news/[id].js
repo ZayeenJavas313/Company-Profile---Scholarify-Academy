@@ -6,6 +6,27 @@ function sanitize(text) {
   return text.replace(/[<>&"']/g, '').trim();
 }
 
+function textToBlocks(text) {
+  if (!text) return undefined;
+  var blocks = [];
+  var paragraphs = text.split(/\n\s*\n/);
+  paragraphs.forEach(function (p) {
+    p = p.trim();
+    if (!p) return;
+    var lines = p.split('\n');
+    lines.forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      blocks.push({
+        _type: 'block',
+        style: 'normal',
+        children: [{ _type: 'span', text: line, marks: [] }],
+      });
+    });
+  });
+  return blocks.length ? blocks : undefined;
+}
+
 module.exports = requireAuth(async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
 
@@ -33,6 +54,10 @@ module.exports = requireAuth(async (req, res) => {
     if (data.tanggal !== undefined) patch.tanggal = sanitize(data.tanggal);
     if (data.urutan !== undefined) patch.urutan = parseInt(data.urutan, 10);
     if (data.gambar !== undefined) patch.gambar = data.gambar ? { _type: 'image', asset: { _ref: data.gambar } } : null;
+    if (data.isiLengkap !== undefined) {
+      var blocks = textToBlocks(data.isiLengkap);
+      if (blocks) patch.isiLengkap = blocks;
+    }
 
     try {
       const result = await sanityMutate([{ patch: { id, set: patch } }]);

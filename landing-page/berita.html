@@ -311,6 +311,8 @@
         var isiHtml = '';
         if (item.isiLengkap && Array.isArray(item.isiLengkap)) {
           isiHtml = blockContentToHtml(item.isiLengkap);
+        } else if (typeof item.isiLengkap === 'string' && item.isiLengkap) {
+          isiHtml = '<p>' + escapeHtml(item.isiLengkap) + '</p>';
         } else if (item.ringkasan) {
           isiHtml = '<p>' + escapeHtml(item.ringkasan) + '</p>';
         }

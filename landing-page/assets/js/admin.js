@@ -301,6 +301,7 @@
       data.judul = titleEl ? titleEl.textContent : '';
       data.ringkasan = summaryEl ? summaryEl.textContent : '';
       data.tanggal = dateEl ? dateEl.textContent : '';
+      data.isiLengkap = card.dataset.isiLengkap || '';
     }
     return data;
   }
@@ -360,6 +361,8 @@
         '<input type="text" id="f-judul" value="' + esc(data.judul || '') + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
         '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Ringkasan</label>' +
         '<textarea id="f-ringkasan" rows="3" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;resize:vertical">' + esc(data.ringkasan || '') + '</textarea>' +
+        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Deskripsi / Isi Lengkap</label>' +
+        '<textarea id="f-isiLengkap" rows="6" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;resize:vertical">' + esc(data.isiLengkap || '') + '</textarea>' +
         '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Tanggal</label>' +
         '<input type="date" id="f-tanggal" value="' + esc(data.tanggal || new Date().toISOString().split('T')[0]) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
         '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Gambar (upload baru atau kosongkan)</label>' +
@@ -425,6 +428,7 @@
         } else if (type === 'news') {
           payload.judul = $('#f-judul').value.trim();
           payload.ringkasan = $('#f-ringkasan').value.trim();
+          payload.isiLengkap = $('#f-isiLengkap').value.trim();
           payload.tanggal = $('#f-tanggal').value;
           if (gambarRef) payload.gambar = gambarRef;
         }
