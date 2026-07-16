@@ -205,7 +205,7 @@
       }
 
       var newsId = item._id || '';
-      var html = '<div class="news-card" data-id="' + newsId + '" role="button" tabindex="0" onclick="window.open(\'berita.html?id=' + newsId + '\', \'_blank\')">';
+      var html = '<div class="news-card" data-id="' + newsId + '">';
       if (pic) {
         html += '<div class="news-image"><img src="' + pic + '" alt="' + item.judul + '" loading="lazy"></div>';
       }
@@ -218,6 +218,17 @@
       grid.innerHTML += html;
     });
     container.appendChild(grid);
+
+    if (!container._newsClickBound) {
+      container._newsClickBound = true;
+      container.addEventListener('click', function (e) {
+        var card = e.target.closest('.news-card');
+        if (!card) return;
+        if (e.target.closest('.admin-btn-edit, .admin-btn-delete, .admin-actions')) return;
+        var id = card.dataset.id;
+        if (id) window.open('berita.html?id=' + id, '_blank');
+      });
+    }
   }
 
   function escapeHtml(text) {
