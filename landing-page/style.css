@@ -5002,17 +5002,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .nav-glass-actions #admin-login-btn {
-    padding: 4px;
-    font-size: 0;
-    line-height: 0;
-  }
-
-  .nav-glass-actions #admin-login-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .nav-glass-actions #admin-login-btn span {
     display: none;
   }
 

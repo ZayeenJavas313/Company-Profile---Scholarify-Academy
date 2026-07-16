@@ -130,11 +130,24 @@
     var adminToolbar = document.getElementById('admin-toolbar');
     var addButtons = $$('.admin-add-btn');
     var navBtn = document.getElementById('admin-login-btn');
+    var mobileAdmin = document.getElementById('nav-mobile-admin');
 
     if (loginLink) loginLink.style.display = isLoggedIn ? 'none' : '';
     if (logoutBtn) logoutBtn.style.display = isLoggedIn ? '' : 'none';
     if (adminToolbar) adminToolbar.style.display = isLoggedIn ? 'flex' : 'none';
     addButtons.forEach(function (b) { b.style.display = isLoggedIn ? '' : 'none'; });
+
+    if (mobileAdmin) {
+      if (isLoggedIn) {
+        mobileAdmin.textContent = 'Logout Admin';
+        mobileAdmin.href = '#';
+        mobileAdmin.onclick = function (e) { e.preventDefault(); closeMobileNav(); doLogout(); };
+      } else {
+        mobileAdmin.textContent = 'Login Admin';
+        mobileAdmin.href = '#';
+        mobileAdmin.onclick = function (e) { e.preventDefault(); closeMobileNav(); showLoginForm(); };
+      }
+    }
 
     if (navBtn) {
       if (isLoggedIn) {
@@ -157,6 +170,13 @@
       removeActionButtons();
       document.body.classList.remove('admin-logged-in');
     }
+  }
+
+  function closeMobileNav() {
+    var hamburger = document.getElementById('navHamburger');
+    var navMobile = document.getElementById('navMobile');
+    if (hamburger) hamburger.classList.remove('active');
+    if (navMobile) navMobile.classList.remove('open');
   }
 
   function injectActionButtons() {
