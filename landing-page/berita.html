@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loading...</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .news-detail-page {
+      min-height: 100vh;
+      background: var(--color-bg);
+    }
+    .news-detail-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0, 10, 25, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 16px 40px;
+    }
+    .news-detail-header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .news-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 14px;
+      font-family: var(--font-body);
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .news-back-btn:hover {
+      color: #fff;
+    }
+    .news-detail-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    #news-detail-content {
+      background: var(--color-card-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    #news-detail-content .news-detail-img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      display: block;
+      background: var(--color-card-border);
+    }
+    .news-detail-body {
+      padding: 40px;
+    }
+    .news-detail-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .news-detail-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--color-card-text);
+      margin: 12px 0 24px;
+      line-height: 1.25;
+      font-family: var(--font-heading);
+      letter-spacing: -0.5px;
+    }
+    .news-detail-full {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--color-card-text);
+    }
+    .news-detail-full p {
+      margin: 0 0 1.2em;
+    }
+    .news-detail-full h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 1.5em 0 0.5em;
+      font-family: var(--font-heading);
+      color: var(--color-card-text);
+    }
+    .news-detail-full h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 1.5em 0 0.5em;
+      font-family: var(--font-heading);
+      color: var(--color-card-text);
+    }
+    .news-detail-full img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin: 1.2em 0;
+    }
+    .news-detail-full blockquote {
+      border-left: 4px solid var(--teal);
+      margin: 1.2em 0;
+      padding: 12px 20px;
+      background: rgba(20, 184, 166, 0.05);
+      border-radius: 0 8px 8px 0;
+      color: var(--color-card-muted);
+      font-style: italic;
+    }
+    .news-detail-full ul,
+    .news-detail-full ol {
+      margin: 0 0 1.2em;
+      padding-left: 24px;
+    }
+    .news-detail-full li {
+      margin-bottom: 0.4em;
+    }
+    .news-detail-loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--color-muted);
+      font-size: 16px;
+    }
+    .news-detail-error {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--color-muted);
+    }
+    .news-detail-error a {
+      color: var(--teal);
+    }
+
+    @media (max-width: 640px) {
+      .news-detail-header {
+        padding: 14px 16px;
+      }
+      .news-detail-container {
+        padding: 24px 16px 60px;
+      }
+      #news-detail-content .news-detail-img {
+        height: 240px;
+      }
+      .news-detail-body {
+        padding: 24px 20px;
+      }
+      .news-detail-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body class="news-detail-page">
+  <header class="news-detail-header">
+    <div class="news-detail-header-inner">
+      <a href="index.html#news" class="news-back-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Kembali
+      </a>
+      <span style="font-family:var(--font-display);font-size:18px;color:rgba(255,255,255,0.4);">Scholarify</span>
+    </div>
+  </header>
+
+  <div class="news-detail-container">
+    <div id="news-detail-content">
+      <div class="news-detail-loading">Memuat berita...</div>
+    </div>
+  </div>
+
+  <script>
+    var SANITY = { projectId: 'gbwew0c6', dataset: 'production', apiVersion: '2024-01-01' };
+
+    function q(query) {
+      var url = 'https://' + SANITY.projectId + '.api.sanity.io/v' + SANITY.apiVersion + '/data/query/' + SANITY.dataset + '?query=' + encodeURIComponent(query);
+      return fetch(url).then(function (r) { return r.json(); });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      var d = document.createElement('div');
+      d.appendChild(document.createTextNode(text));
+      return d.innerHTML;
+    }
+
+    function blockContentToHtml(blocks) {
+      if (!blocks || !Array.isArray(blocks)) return '';
+      var html = '';
+
+      blocks.forEach(function (block) {
+        if (block._type === 'block') {
+          var tag = 'p';
+          var className = '';
+          switch (block.style) {
+            case 'h2': tag = 'h2'; break;
+            case 'h3': tag = 'h3'; break;
+            case 'h4': tag = 'h4'; break;
+            case 'blockquote': tag = 'blockquote'; break;
+            case 'normal':
+            default: tag = 'p'; break;
+          }
+
+          var inner = '';
+          if (block.children) {
+            block.children.forEach(function (child) {
+              var text = escapeHtml(child.text || '');
+              if (child.marks && child.marks.length) {
+                child.marks.forEach(function (mark) {
+                  if (mark === 'strong') text = '<strong>' + text + '</strong>';
+                  else if (mark === 'em') text = '<em>' + text + '</em>';
+                  else if (mark === 'code') text = '<code>' + text + '</code>';
+                  else if (mark === 'underline') text = '<u>' + text + '</u>';
+                  else if (mark === 'strike-through') text = '<s>' + text + '</s>';
+                });
+              }
+              inner += text;
+            });
+          }
+
+          if (block.listItem === 'bullet') {
+            html += '<li>' + inner + '</li>';
+          } else if (block.listItem === 'number') {
+            html += '<li>' + inner + '</li>';
+          } else {
+            html += '<' + tag + '>' + inner + '</' + tag + '>';
+          }
+        } else if (block._type === 'image') {
+          var asset = block.asset || {};
+          var ref = asset._ref || '';
+          if (ref) {
+            var base = ref.replace(/^image-/, '');
+            var lastDash = base.lastIndexOf('-');
+            var format = base.substring(lastDash + 1);
+            var rest = base.substring(0, lastDash);
+            var dimDash = rest.lastIndexOf('-');
+            var imageId = rest.substring(0, dimDash);
+            var url = 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + imageId + '-800x600.' + format;
+            html += '<img src="' + url + '" alt="" loading="lazy" />';
+          }
+        }
+      });
+
+      var ulOpen = false;
+      var olOpen = false;
+      var lines = html.split('</li>');
+      var result = '';
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line.indexOf('<li>') !== -1) {
+          if (!ulOpen && !olOpen) {
+            result += '<ul>';
+            ulOpen = true;
+          }
+        } else {
+          if (ulOpen) { result += '</ul>'; ulOpen = false; }
+          if (olOpen) { result += '</ol>'; olOpen = false; }
+        }
+        result += line;
+        if (i < lines.length - 1) result += '</li>';
+      }
+      if (ulOpen) result += '</ul>';
+      if (olOpen) result += '</ol>';
+
+      return result;
+    }
+
+    function loadNews() {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('id');
+      var container = document.getElementById('news-detail-content');
+      if (!id) {
+        container.innerHTML = '<div class="news-detail-error">Berita tidak ditemukan. <a href="index.html#news">Kembali</a></div>';
+        document.title = 'Berita tidak ditemukan';
+        return;
+      }
+
+      var query = '*[_id == "' + id + '"]{..., "gambarUrl": gambar.asset->url, isiLengkap}[0]';
+      q(query).then(function (data) {
+        var item = data.result;
+        if (!item) {
+          container.innerHTML = '<div class="news-detail-error">Berita tidak ditemukan. <a href="index.html#news">Kembali</a></div>';
+          document.title = 'Berita tidak ditemukan';
+          return;
+        }
+
+        document.title = item.judul + ' — Scholarify';
+
+        var date = item.tanggal || '';
+        if (date) {
+          var parts = date.split('-');
+          if (parts.length === 3) {
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            date = parseInt(parts[2], 10) + ' ' + months[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+          }
+        }
+
+        var gambarHtml = '';
+        if (item.gambarUrl) {
+          gambarHtml = '<img class="news-detail-img" src="' + item.gambarUrl + '?w=800" alt="' + escapeHtml(item.judul) + '" />';
+        }
+
+        var isiHtml = '';
+        if (item.isiLengkap && Array.isArray(item.isiLengkap)) {
+          isiHtml = blockContentToHtml(item.isiLengkap);
+        } else if (item.ringkasan) {
+          isiHtml = '<p>' + escapeHtml(item.ringkasan) + '</p>';
+        }
+
+        container.innerHTML =
+          gambarHtml +
+          '<div class="news-detail-body">' +
+          '<div class="news-detail-date">' + date + '</div>' +
+          '<h1 class="news-detail-title">' + escapeHtml(item.judul) + '</h1>' +
+          '<div class="news-detail-full">' + isiHtml + '</div>' +
+          '</div>';
+      }).catch(function (err) {
+        console.error(err);
+        container.innerHTML = '<div class="news-detail-error">Gagal memuat berita. <a href="index.html#news">Coba lagi</a></div>';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNews);
+  </script>
+</body>
+</html>

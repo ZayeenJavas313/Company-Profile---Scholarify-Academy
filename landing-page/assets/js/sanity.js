@@ -204,7 +204,8 @@
         }
       }
 
-      var html = '<div class="news-card" data-id="' + (item._id || '') + '">';
+      var newsId = item._id || '';
+      var html = '<div class="news-card" data-id="' + newsId + '" role="button" tabindex="0" onclick="window.open(\'berita.html?id=' + newsId + '\', \'_blank\')">';
       if (pic) {
         html += '<div class="news-image"><img src="' + pic + '" alt="' + item.judul + '" loading="lazy"></div>';
       }

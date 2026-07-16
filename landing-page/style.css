@@ -5148,6 +5148,7 @@ h1, h2, h3, h4, h5, h6 {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
   --color-text: var(--color-card-text);
   --color-muted: var(--color-card-muted);
 }
