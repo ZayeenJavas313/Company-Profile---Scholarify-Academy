@@ -1,8 +1,38 @@
 node_modules/
 .env
 .env.local
+.env.*
 dist/
 .sanity/
 studio/node_modules/
 studio/dist/
 studio/.sanity/
+
+# Python / Django
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+db.sqlite3
+/media
+/staticfiles
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Backup
+backup/
+
+# Misc
+*.tsbuildinfo
