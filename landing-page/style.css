@@ -4895,8 +4895,6 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -2.46px;
   max-width: 1200px;
   margin: 0;
-  opacity: 0;
-  transform: translateY(24px);
 }
 
 .hero-cinematic-sub {
@@ -4907,14 +4905,10 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 32px;
   line-height: 1.7;
   font-weight: 400;
-  opacity: 0;
-  transform: translateY(24px);
 }
 
 .hero-cinematic-cta {
   margin-top: 48px;
-  opacity: 0;
-  transform: translateY(24px);
 }
 
 .btn-hero-cta {

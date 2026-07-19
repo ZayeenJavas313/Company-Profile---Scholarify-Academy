@@ -72,16 +72,16 @@
 
   <!-- Hero Content -->
   <div class="hero-cinematic-content">
-    <h1 class="hero-cinematic-title" id="heroTitle">
+    <h1 class="hero-cinematic-title animate-fade-rise">
       Wujudkan Mimpi Masuk<br />
       <em class="not-italic" style="color:rgba(255,255,255,0.5)">Kampus Impian</em> & Pahami<br />
       <em class="not-italic" style="color:rgba(255,255,255,0.5)">Materi Sekolah</em>
     </h1>
-    <p class="hero-cinematic-sub" id="heroSub">
+    <p class="hero-cinematic-sub animate-fade-rise-delay">
       Raih kampus impianmu dengan bimbingan intensif bersama mentor berpengalaman. 
       Scholarify membantu kamu memahami materi sekolah dan kuliah dengan metode belajar yang efektif dan menyenangkan.
     </p>
-    <div class="hero-cinematic-cta" id="heroCta">
+    <div class="hero-cinematic-cta animate-fade-rise-delay-2">
       <a href="https://e-ujian.com/Scholarify" target="_blank" rel="noreferrer" class="liquid-glass btn-hero-cta">Mulai Tryout</a>
     </div>
   </div>
@@ -780,17 +780,9 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="assets/js/sanity.js"></script>
 <script src="assets/js/admin.js"></script>
 
-<!-- GSAP Hero + Footer Animations -->
+<!-- GSAP Cinematic Footer Animations -->
 <script>
 gsap.registerPlugin(ScrollTrigger, SplitText);
-
-// Hero animations — play immediately on DOM ready tanpa nunggu video
-document.addEventListener('DOMContentLoaded', function() {
-  var tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8 } });
-  tl.fromTo('#heroTitle', { y: 24, opacity: 0 }, { y: 0, opacity: 1 })
-    .fromTo('#heroSub', { y: 24, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5')
-    .fromTo('#heroCta', { y: 24, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5');
-});
 
 // Wait for everything to load
 window.addEventListener('load', function() {
