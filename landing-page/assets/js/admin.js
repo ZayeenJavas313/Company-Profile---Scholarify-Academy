@@ -172,11 +172,18 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         isLoggedIn = data.loggedIn === true;
+        if (isLoggedIn) {
+          try { localStorage.setItem('scholarify_logged_in', '1'); } catch (e) {}
+        } else {
+          try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
+        }
         updateAdminUI();
         return isLoggedIn;
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('checkSession error:', err);
         isLoggedIn = false;
+        try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
         updateAdminUI();
         return false;
       });
@@ -232,6 +239,7 @@
       credentials: 'same-origin',
     }).then(function () {
       isLoggedIn = false;
+      try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
       updateAdminUI();
       if (typeof refreshScholarifyData === 'function') refreshScholarifyData();
     });
@@ -717,6 +725,13 @@
       modal.className = 'admin-modal hidden';
       document.body.appendChild(modal);
     }
+
+    var urlParam = new URLSearchParams(window.location.search);
+    if (urlParam.get('admin') === '1' || localStorage.getItem('scholarify_logged_in') === '1') {
+      isLoggedIn = true;
+      updateAdminUI();
+    }
+
     checkSession();
   });
 

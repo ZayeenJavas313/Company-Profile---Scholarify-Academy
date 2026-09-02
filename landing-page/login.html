@@ -262,7 +262,8 @@
             errEl.style.display = 'none';
             btn.textContent = 'Berhasil! Mengalihkan...';
             btn.style.background = '#14B8A6';
-            setTimeout(function() { window.location.href = '/'; }, 500);
+            try { localStorage.setItem('scholarify_logged_in', '1'); } catch (e) {}
+            setTimeout(function() { window.location.href = '/?admin=1'; }, 500);
           } else {
             showErr(data.error || 'Password salah. Coba lagi.');
             btn.disabled = false;
