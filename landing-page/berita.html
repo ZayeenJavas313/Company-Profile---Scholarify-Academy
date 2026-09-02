@@ -3,35 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Loading...</title>
+  <title>Loading... — Scholarify</title>
   <link rel="icon" href="favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
-    .news-detail-page {
+    .blog-detail-page {
       min-height: 100vh;
       background: var(--color-bg);
     }
-    .news-detail-header {
+
+    /* Header */
+    .blog-detail-header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(0, 10, 25, 0.3);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 10, 25, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 16px 40px;
+      padding: 14px 40px;
     }
-    .news-detail-header-inner {
-      max-width: 800px;
+    .blog-detail-header-inner {
+      max-width: 760px;
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
     }
-    .news-back-btn {
+    .blog-back-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -40,142 +42,313 @@
       font-size: 14px;
       font-family: var(--font-body);
       transition: color 0.2s;
-      flex-shrink: 0;
     }
-    .news-back-btn:hover {
+    .blog-back-btn:hover { color: #fff; }
+    .blog-header-share {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .blog-share-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .blog-share-btn:hover {
+      background: rgba(255,255,255,0.1);
       color: #fff;
+      border-color: rgba(255,255,255,0.2);
     }
-    .news-detail-container {
-      max-width: 800px;
+    .blog-share-btn.whatsapp:hover { background: rgba(37, 211, 102, 0.15); color: #25D366; border-color: rgba(37, 211, 102, 0.3); }
+    .blog-share-btn.twitter:hover { background: rgba(29, 161, 242, 0.15); color: #1DA1F2; border-color: rgba(29, 161, 242, 0.3); }
+    .blog-share-btn.facebook:hover { background: rgba(24, 119, 242, 0.15); color: #1877F2; border-color: rgba(24, 119, 242, 0.3); }
+    .blog-share-btn.copy:hover { background: rgba(20, 184, 166, 0.15); color: var(--teal); border-color: rgba(20, 184, 166, 0.3); }
+    .blog-share-btn.copied { background: rgba(20, 184, 166, 0.2); color: var(--teal); border-color: var(--teal); }
+
+    /* Article Container */
+    .blog-article {
+      max-width: 760px;
       margin: 0 auto;
       padding: 48px 24px 80px;
     }
-    #news-detail-content {
-      background: var(--color-card-bg);
+
+    /* Article Hero Image */
+    .blog-article-hero {
+      width: 100%;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
-    #news-detail-content .news-detail-img {
-      width: 100%;
-      height: 400px;
-      object-fit: cover;
-      display: block;
+      margin-bottom: 32px;
       background: var(--color-card-border);
     }
-    .news-detail-body {
-      padding: 40px;
+    .blog-article-hero img {
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      object-fit: cover;
+      display: block;
     }
-    .news-detail-date {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--teal);
-      text-transform: uppercase;
+
+    /* Article Meta */
+    .blog-article-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .blog-article-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      background: rgba(20,184,166,0.1);
     }
-    .news-detail-title {
-      font-size: 32px;
+    .blog-article-date {
+      font-size: 13px;
+      color: var(--color-muted);
+    }
+    .blog-article-reading {
+      font-size: 13px;
+      color: var(--color-muted);
+    }
+    .blog-article-reading::before {
+      content: '·';
+      margin-right: 12px;
+      opacity: 0.4;
+    }
+
+    /* Article Title */
+    .blog-article-title {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 4vw, 38px);
       font-weight: 800;
       color: var(--color-card-text);
-      margin: 12px 0 24px;
+      margin: 0 0 24px;
       line-height: 1.25;
-      font-family: var(--font-heading);
       letter-spacing: -0.5px;
     }
-    .news-detail-full {
+
+    /* Article Content */
+    .blog-article-content {
       font-size: 16px;
-      line-height: 1.8;
+      line-height: 1.85;
       color: var(--color-card-text);
     }
-    .news-detail-full p {
-      margin: 0 0 1.2em;
-    }
-    .news-detail-full h2 {
+    .blog-article-content p { margin: 0 0 1.4em; }
+    .blog-article-content h2 {
       font-size: 24px;
       font-weight: 700;
-      margin: 1.5em 0 0.5em;
+      margin: 2em 0 0.6em;
       font-family: var(--font-heading);
       color: var(--color-card-text);
+      letter-spacing: -0.3px;
     }
-    .news-detail-full h3 {
+    .blog-article-content h3 {
       font-size: 20px;
       font-weight: 600;
-      margin: 1.5em 0 0.5em;
+      margin: 1.8em 0 0.5em;
       font-family: var(--font-heading);
       color: var(--color-card-text);
     }
-    .news-detail-full img {
+    .blog-article-content img {
       max-width: 100%;
       border-radius: 12px;
-      margin: 1.2em 0;
+      margin: 1.5em 0;
     }
-    .news-detail-full blockquote {
+    .blog-article-content blockquote {
       border-left: 4px solid var(--teal);
-      margin: 1.2em 0;
-      padding: 12px 20px;
-      background: rgba(20, 184, 166, 0.05);
-      border-radius: 0 8px 8px 0;
+      margin: 1.5em 0;
+      padding: 16px 24px;
+      background: rgba(20, 184, 166, 0.04);
+      border-radius: 0 12px 12px 0;
       color: var(--color-card-muted);
       font-style: italic;
     }
-    .news-detail-full ul,
-    .news-detail-full ol {
-      margin: 0 0 1.2em;
-      padding-left: 24px;
+    .blog-article-content ul,
+    .blog-article-content ol {
+      margin: 0 0 1.4em;
+      padding-left: 28px;
     }
-    .news-detail-full li {
-      margin-bottom: 0.4em;
+    .blog-article-content li { margin-bottom: 0.5em; }
+    .blog-article-content code {
+      background: rgba(20,184,166,0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
     }
-    .news-detail-loading {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--color-muted);
-      font-size: 16px;
+    .blog-article-content pre {
+      background: rgba(0,0,0,0.3);
+      padding: 16px 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 1.5em 0;
     }
-    .news-detail-error {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--color-muted);
+    .blog-article-content pre code {
+      background: none;
+      padding: 0;
     }
-    .news-detail-error a {
+    .blog-article-content a {
+      color: var(--teal);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Share Bar (bottom) */
+    .blog-share-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--color-card-border);
+    }
+    .blog-share-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-card-text);
+    }
+    .blog-share-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .blog-share-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--color-card-border);
+      background: var(--color-card-bg);
+      color: var(--color-card-text);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .blog-share-pill:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+    .blog-share-pill.whatsapp:hover { background: rgba(37, 211, 102, 0.08); }
+    .blog-share-pill.twitter:hover { background: rgba(29, 161, 242, 0.08); }
+    .blog-share-pill.copy:hover { background: rgba(20, 184, 166, 0.08); }
+    .blog-share-pill.copied {
+      background: rgba(20, 184, 166, 0.12);
+      border-color: var(--teal);
       color: var(--teal);
     }
 
+    /* Back to Blog */
+    .blog-back-bottom {
+      display: flex;
+      justify-content: center;
+      margin-top: 32px;
+    }
+    .blog-back-bottom a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-card-text);
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-card-border);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .blog-back-bottom a:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* Loading & Error */
+    .blog-detail-loading {
+      text-align: center;
+      padding: 120px 20px;
+      color: var(--color-muted);
+      font-size: 16px;
+    }
+    .blog-detail-error {
+      text-align: center;
+      padding: 120px 20px;
+      color: var(--color-muted);
+    }
+    .blog-detail-error a { color: var(--teal); }
+
+    /* Toast */
+    .blog-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--color-card-bg);
+      border: 1px solid var(--teal);
+      color: var(--color-card-text);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .blog-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     @media (max-width: 640px) {
-      .news-detail-header {
-        padding: 14px 16px;
-      }
-      .news-detail-container {
-        padding: 24px 16px 60px;
-      }
-      #news-detail-content .news-detail-img {
-        height: 240px;
-      }
-      .news-detail-body {
-        padding: 24px 20px;
-      }
-      .news-detail-title {
-        font-size: 24px;
-      }
+      .blog-detail-header { padding: 12px 16px; }
+      .blog-article { padding: 24px 16px 60px; }
+      .blog-article-hero img { max-height: 280px; }
+      .blog-article-title { font-size: 24px; }
+      .blog-article-content { font-size: 15px; }
+      .blog-share-bar { flex-direction: column; align-items: flex-start; }
+      .blog-share-buttons { flex-wrap: wrap; }
+      .blog-share-pill { padding: 8px 12px; font-size: 12px; }
     }
   </style>
 </head>
-<body class="news-detail-page">
-  <header class="news-detail-header">
-    <div class="news-detail-header-inner">
-      <a href="index.html#news" class="news-back-btn">
+<body class="blog-detail-page">
+  <!-- Header -->
+  <header class="blog-detail-header">
+    <div class="blog-detail-header-inner">
+      <a href="blog.html" class="blog-back-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        Kembali
+        Kembali ke Blog
       </a>
-      <span style="font-family:var(--font-display);font-size:18px;color:rgba(255,255,255,0.4);">Scholarify</span>
+      <div class="blog-header-share" id="header-share"></div>
     </div>
   </header>
 
-  <div class="news-detail-container">
-    <div id="news-detail-content">
-      <div class="news-detail-loading">Memuat berita...</div>
+  <!-- Article -->
+  <article class="blog-article">
+    <div id="blog-detail-content">
+      <div class="blog-detail-loading">Memuat artikel...</div>
     </div>
-  </div>
+  </article>
+
+  <!-- Toast -->
+  <div class="blog-toast" id="shareToast">Link berhasil disalin!</div>
 
   <script>
     var SANITY = { projectId: 'gbwew0c6', dataset: 'production', apiVersion: '2024-01-01' };
@@ -192,23 +365,30 @@
       return d.innerHTML;
     }
 
+    function imgUrl(ref, w) {
+      if (!ref) return '';
+      w = w || 800;
+      var base = ref.replace(/^image-/, '');
+      var lastDash = base.lastIndexOf('-');
+      var format = base.substring(lastDash + 1);
+      var rest = base.substring(0, lastDash);
+      var dimDash = rest.lastIndexOf('-');
+      var imageId = rest.substring(0, dimDash);
+      return 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + imageId + '-' + w + 'x' + Math.round(w * 0.5625) + '.' + format;
+    }
+
     function blockContentToHtml(blocks) {
       if (!blocks || !Array.isArray(blocks)) return '';
       var html = '';
-
       blocks.forEach(function (block) {
         if (block._type === 'block') {
           var tag = 'p';
-          var className = '';
           switch (block.style) {
             case 'h2': tag = 'h2'; break;
             case 'h3': tag = 'h3'; break;
             case 'h4': tag = 'h4'; break;
             case 'blockquote': tag = 'blockquote'; break;
-            case 'normal':
-            default: tag = 'p'; break;
           }
-
           var inner = '';
           if (block.children) {
             block.children.forEach(function (child) {
@@ -220,15 +400,16 @@
                   else if (mark === 'code') text = '<code>' + text + '</code>';
                   else if (mark === 'underline') text = '<u>' + text + '</u>';
                   else if (mark === 'strike-through') text = '<s>' + text + '</s>';
+                  else if (typeof mark === 'object' && mark._type === 'link') {
+                    var href = mark.href || '#';
+                    text = '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer">' + text + '</a>';
+                  }
                 });
               }
               inner += text;
             });
           }
-
-          if (block.listItem === 'bullet') {
-            html += '<li>' + inner + '</li>';
-          } else if (block.listItem === 'number') {
+          if (block.listItem === 'bullet' || block.listItem === 'number') {
             html += '<li>' + inner + '</li>';
           } else {
             html += '<' + tag + '>' + inner + '</' + tag + '>';
@@ -248,38 +429,101 @@
           }
         }
       });
-
       var ulOpen = false;
-      var olOpen = false;
       var lines = html.split('</li>');
       var result = '';
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         if (line.indexOf('<li>') !== -1) {
-          if (!ulOpen && !olOpen) {
-            result += '<ul>';
-            ulOpen = true;
-          }
+          if (!ulOpen) { result += '<ul>'; ulOpen = true; }
         } else {
           if (ulOpen) { result += '</ul>'; ulOpen = false; }
-          if (olOpen) { result += '</ol>'; olOpen = false; }
         }
         result += line;
         if (i < lines.length - 1) result += '</li>';
       }
       if (ulOpen) result += '</ul>';
-      if (olOpen) result += '</ol>';
-
       return result;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      var parts = dateStr.split('-');
+      if (parts.length === 3) {
+        var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        return parseInt(parts[2], 10) + ' ' + months[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+      }
+      return dateStr;
+    }
+
+    function estimateReading(html) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var text = tmp.textContent || tmp.innerText || '';
+      var words = text.trim().split(/\s+/).length;
+      var minutes = Math.max(1, Math.ceil(words / 200));
+      return minutes + ' menit baca';
+    }
+
+    function getShareUrl() {
+      return window.location.href;
+    }
+
+    function getShareText(title) {
+      return title + ' — Scholarify';
+    }
+
+    function showToast(msg) {
+      var toast = document.getElementById('shareToast');
+      toast.textContent = msg || 'Link berhasil disalin!';
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    }
+
+    function shareWhatsApp(title) {
+      var text = encodeURIComponent(getShareText(title) + '\n' + getShareUrl());
+      window.open('https://wa.me/?text=' + text, '_blank');
+    }
+
+    function shareTwitter(title) {
+      var text = encodeURIComponent(getShareText(title));
+      var url = encodeURIComponent(getShareUrl());
+      window.open('https://twitter.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
+    }
+
+    function shareFacebook() {
+      var url = encodeURIComponent(getShareUrl());
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank');
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(getShareUrl()).then(function() {
+        showToast('Link berhasil disalin!');
+        var btns = document.querySelectorAll('.blog-share-btn.copy, .blog-share-pill.copy');
+        btns.forEach(function(b) { b.classList.add('copied'); });
+        setTimeout(function() { btns.forEach(function(b) { b.classList.remove('copied'); }); }, 2000);
+      }).catch(function() {
+        showToast('Gagal menyalin link');
+      });
+    }
+
+    function renderShareButtons(title) {
+      var headerShare = document.getElementById('header-share');
+      if (headerShare) {
+        headerShare.innerHTML =
+          '<button class="blog-share-btn whatsapp" onclick="shareWhatsApp(\'' + escapeHtml(title).replace(/'/g, "\\'") + '\')" title="Share ke WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>' +
+          '<button class="blog-share-btn twitter" onclick="shareTwitter(\'' + escapeHtml(title).replace(/'/g, "\\'") + '\')" title="Share ke Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>' +
+          '<button class="blog-share-btn copy" onclick="copyLink()" title="Salin link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+      }
     }
 
     function loadNews() {
       var params = new URLSearchParams(window.location.search);
       var id = params.get('id');
-      var container = document.getElementById('news-detail-content');
+      var container = document.getElementById('blog-detail-content');
       if (!id) {
-        container.innerHTML = '<div class="news-detail-error">Berita tidak ditemukan. <a href="index.html#news">Kembali</a></div>';
-        document.title = 'Berita tidak ditemukan';
+        container.innerHTML = '<div class="blog-detail-error">Artikel tidak ditemukan. <a href="blog.html">Kembali ke Blog</a></div>';
+        document.title = 'Artikel tidak ditemukan — Scholarify';
         return;
       }
 
@@ -287,25 +531,18 @@
       q(query).then(function (data) {
         var item = data.result;
         if (!item) {
-          container.innerHTML = '<div class="news-detail-error">Berita tidak ditemukan. <a href="index.html#news">Kembali</a></div>';
-          document.title = 'Berita tidak ditemukan';
+          container.innerHTML = '<div class="blog-detail-error">Artikel tidak ditemukan. <a href="blog.html">Kembali ke Blog</a></div>';
+          document.title = 'Artikel tidak ditemukan — Scholarify';
           return;
         }
 
         document.title = item.judul + ' — Scholarify';
 
-        var date = item.tanggal || '';
-        if (date) {
-          var parts = date.split('-');
-          if (parts.length === 3) {
-            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            date = parseInt(parts[2], 10) + ' ' + months[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
-          }
-        }
+        var date = formatDate(item.tanggal);
 
         var gambarHtml = '';
         if (item.gambarUrl) {
-          gambarHtml = '<img class="news-detail-img" src="' + item.gambarUrl + '?w=800" alt="' + escapeHtml(item.judul) + '" />';
+          gambarHtml = '<div class="blog-article-hero"><img src="' + item.gambarUrl + '?w=800" alt="' + escapeHtml(item.judul) + '" /></div>';
         }
 
         var isiHtml = '';
@@ -317,16 +554,32 @@
           isiHtml = '<p>' + escapeHtml(item.ringkasan) + '</p>';
         }
 
+        var readingTime = estimateReading(isiHtml);
+
+        renderShareButtons(item.judul);
+
         container.innerHTML =
           gambarHtml +
-          '<div class="news-detail-body">' +
-          '<div class="news-detail-date">' + date + '</div>' +
-          '<h1 class="news-detail-title">' + escapeHtml(item.judul) + '</h1>' +
-          '<div class="news-detail-full">' + isiHtml + '</div>' +
-          '</div>';
+          '<div class="blog-article-meta">' +
+            '<span class="blog-article-tag">Berita</span>' +
+            '<span class="blog-article-date">' + date + '</span>' +
+            '<span class="blog-article-reading">' + readingTime + '</span>' +
+          '</div>' +
+          '<h1 class="blog-article-title">' + escapeHtml(item.judul) + '</h1>' +
+          '<div class="blog-article-content">' + isiHtml + '</div>' +
+          '<div class="blog-share-bar">' +
+            '<span class="blog-share-label">Bagikan artikel ini</span>' +
+            '<div class="blog-share-buttons">' +
+              '<button class="blog-share-pill whatsapp" onclick="shareWhatsApp(\'' + escapeHtml(item.judul).replace(/'/g, "\\'") + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> WhatsApp</button>' +
+              '<button class="blog-share-pill twitter" onclick="shareTwitter(\'' + escapeHtml(item.judul).replace(/'/g, "\\'") + '\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> Twitter</button>' +
+              '<button class="blog-share-pill facebook" onclick="shareFacebook()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</button>' +
+              '<button class="blog-share-pill copy" onclick="copyLink()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Salin Link</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="blog-back-bottom"><a href="blog.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Lihat Artikel Lainnya</a></div>';
       }).catch(function (err) {
         console.error(err);
-        container.innerHTML = '<div class="news-detail-error">Gagal memuat berita. <a href="index.html#news">Coba lagi</a></div>';
+        container.innerHTML = '<div class="blog-detail-error">Gagal memuat artikel. <a href="blog.html">Coba lagi</a></div>';
       });
     }
 

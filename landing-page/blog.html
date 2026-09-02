@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id" style="scroll-behavior:smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blog — Scholarify</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+      .blog-page { padding-top: 100px; min-height: 100vh; }
+
+      /* Blog Hero */
+      .blog-hero {
+        text-align: center;
+        padding: 60px 24px 40px;
+        background: linear-gradient(180deg, rgba(20,184,166,0.06) 0%, transparent 100%);
+      }
+      .blog-hero-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: rgba(20,184,166,0.1);
+        border: 1px solid rgba(20,184,166,0.2);
+        margin-bottom: 16px;
+      }
+      .blog-hero h1 {
+        font-family: var(--font-heading);
+        font-size: clamp(28px, 5vw, 44px);
+        font-weight: 800;
+        color: var(--color-card-text);
+        margin: 0 0 12px;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+      }
+      .blog-hero p {
+        font-size: 16px;
+        color: var(--color-muted);
+        max-width: 520px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      /* Featured Article */
+      .blog-featured {
+        max-width: 960px;
+        margin: 0 auto 48px;
+        padding: 0 24px;
+      }
+      .blog-featured-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        background: var(--color-card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--color-card-border);
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+        color: inherit;
+      }
+      .blog-featured-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      }
+      .blog-featured-img {
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+        object-fit: cover;
+        display: block;
+        background: var(--color-card-border);
+      }
+      .blog-featured-body {
+        padding: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .blog-featured-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: rgba(20,184,166,0.1);
+        margin-bottom: 12px;
+        width: fit-content;
+      }
+      .blog-featured-title {
+        font-family: var(--font-heading);
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--color-card-text);
+        margin: 0 0 12px;
+        line-height: 1.3;
+        letter-spacing: -0.3px;
+      }
+      .blog-featured-excerpt {
+        font-size: 14px;
+        color: var(--color-muted);
+        line-height: 1.7;
+        margin: 0 0 20px;
+      }
+      .blog-featured-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--color-muted);
+      }
+      .blog-featured-meta .dot { opacity: 0.4; }
+      .blog-read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--teal);
+        text-decoration: none;
+        margin-top: 16px;
+        transition: gap 0.2s;
+      }
+      .blog-featured-card:hover .blog-read-more { gap: 10px; }
+
+      /* Blog Grid */
+      .blog-grid-section {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+      }
+      .blog-grid-section h2 {
+        font-family: var(--font-heading);
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--color-card-text);
+        margin: 0 0 24px;
+      }
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+      }
+      .blog-card {
+        background: var(--color-card-bg);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--color-card-border);
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+      }
+      .blog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      }
+      .blog-card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16/9;
+      }
+      .blog-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        background: var(--color-card-border);
+        transition: transform 0.4s;
+      }
+      .blog-card:hover .blog-card-img { transform: scale(1.05); }
+      .blog-card-body {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .blog-card-date {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-muted);
+        margin-bottom: 8px;
+      }
+      .blog-card-title {
+        font-family: var(--font-heading);
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--color-card-text);
+        margin: 0 0 8px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .blog-card-excerpt {
+        font-size: 13px;
+        color: var(--color-muted);
+        line-height: 1.6;
+        margin: 0 0 16px;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .blog-card-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--teal);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: gap 0.2s;
+      }
+      .blog-card:hover .blog-card-link { gap: 8px; }
+
+      /* Empty state */
+      .blog-empty {
+        text-align: center;
+        padding: 80px 24px;
+        color: var(--color-muted);
+        font-size: 16px;
+      }
+
+      /* Loading skeleton */
+      .blog-skeleton-card {
+        background: var(--color-card-bg);
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--color-card-border);
+      }
+      .blog-skeleton-img {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: linear-gradient(90deg, var(--color-card-border) 25%, rgba(255,255,255,0.05) 50%, var(--color-card-border) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+      .blog-skeleton-body { padding: 20px; }
+      .blog-skeleton-line {
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, var(--color-card-border) 25%, rgba(255,255,255,0.05) 50%, var(--color-card-border) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        margin-bottom: 10px;
+      }
+      .blog-skeleton-line.w60 { width: 60%; }
+      .blog-skeleton-line.w80 { width: 80%; }
+      .blog-skeleton-line.w100 { width: 100%; }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+      /* Footer override for blog */
+      .blog-footer { margin-top: 0; }
+
+      @media (max-width: 768px) {
+        .blog-featured-card { grid-template-columns: 1fr; }
+        .blog-featured-img { min-height: 220px; }
+        .blog-featured-body { padding: 24px; }
+        .blog-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+
+<!-- ========== NAVBAR ========== -->
+<header class="nav-glass">
+  <div class="nav-glass-inner">
+    <a class="nav-glass-brand" href="index.html">
+      Scholarify<sup class="text-xs" style="font-size:0.5em;vertical-align:super">®</sup>
+    </a>
+    <nav class="nav-glass-links">
+      <a href="index.html">Beranda</a>
+      <a href="layanan.html">Layanan</a>
+      <a href="program.html">Program</a>
+      <a href="tim.html">Tim</a>
+      <a href="testimoni.html">Testimoni</a>
+      <a href="blog.html" class="active">Berita</a>
+      <a href="kontak.html">Kontak</a>
+    </nav>
+    <div class="nav-glass-actions">
+      <a href="https://e-ujian.com/Scholarify" target="_blank" rel="noreferrer" class="btn-journey">TryOut</a>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="index.html">Beranda</a>
+    <a href="layanan.html">Layanan</a>
+    <a href="program.html">Program</a>
+    <a href="tim.html">Tim</a>
+    <a href="testimoni.html">Testimoni</a>
+    <a href="blog.html" class="active">Berita</a>
+    <a href="kontak.html">Kontak</a>
+  </nav>
+</header>
+
+<!-- ========== BLOG HERO ========== -->
+<div class="blog-page">
+  <div class="blog-hero" data-aos="fade-up" data-aos-duration="800">
+    <div class="blog-hero-badge">BERITA & ARTIKEL</div>
+    <h1>Wacana & Update Terbaru</h1>
+    <p>Informasi, tips, dan cerita inspiratif seputar persiapan UTBK, pemahaman materi, dan perjalanan akademikmu.</p>
+  </div>
+
+  <!-- Featured Article (latest) -->
+  <div class="blog-featured" id="blog-featured">
+    <div class="blog-skeleton-card">
+      <div class="blog-skeleton-img"></div>
+      <div class="blog-skeleton-body">
+        <div class="blog-skeleton-line w60"></div>
+        <div class="blog-skeleton-line w100"></div>
+        <div class="blog-skeleton-line w80"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Article Grid -->
+  <div class="blog-grid-section">
+    <h2>Artikel Lainnya</h2>
+    <div class="blog-grid" id="blog-grid">
+      <div class="blog-skeleton-card"><div class="blog-skeleton-img"></div><div class="blog-skeleton-body"><div class="blog-skeleton-line w60"></div><div class="blog-skeleton-line w100"></div></div></div>
+      <div class="blog-skeleton-card"><div class="blog-skeleton-img"></div><div class="blog-skeleton-body"><div class="blog-skeleton-line w60"></div><div class="blog-skeleton-line w100"></div></div></div>
+      <div class="blog-skeleton-card"><div class="blog-skeleton-img"></div><div class="blog-skeleton-body"><div class="blog-skeleton-line w60"></div><div class="blog-skeleton-line w100"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<div id="footer" class="cinematic-footer-wrapper blog-footer">
+  <footer class="cinematic-footer">
+    <div class="footer-aurora"></div>
+    <div class="footer-bg-grid"></div>
+    <div class="footer-giant-text">SCHOLARIFY</div>
+    <div class="footer-diagonal-marquee">
+      <div class="footer-marquee-track">
+        <div class="footer-marquee-item">
+          <span>Belajar Intensif</span><span class="dot">✦</span>
+          <span>TryOut UTBK</span><span class="dot">✦</span>
+          <span>Konsultasi Kampus</span><span class="dot">✦</span>
+          <span>Gabung Sekarang</span><span class="dot">✦</span>
+          <span>Mentor Profesional</span><span class="dot">✦</span>
+        </div>
+        <div class="footer-marquee-item">
+          <span>Belajar Intensif</span><span class="dot">✦</span>
+          <span>TryOut UTBK</span><span class="dot">✦</span>
+          <span>Konsultasi Kampus</span><span class="dot">✦</span>
+          <span>Gabung Sekarang</span><span class="dot">✦</span>
+          <span>Mentor Profesional</span><span class="dot">✦</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-center">
+      <h2 class="footer-heading">Let's build your future.</h2>
+      <div class="footer-ctas">
+        <a href="https://wa.me/62895615806060" target="_blank" rel="noreferrer" class="footer-glass-pill magnetic-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat WhatsApp
+        </a>
+        <a href="mailto:officialscholarify@gmail.com" class="footer-glass-pill magnetic-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          Kirim Email
+        </a>
+      </div>
+      <div class="footer-ctas" style="margin-top:0">
+        <a href="https://instagram.com/official_scholarify" target="_blank" rel="noreferrer" class="footer-glass-pill small magnetic-btn">Instagram</a>
+        <a href="#" class="footer-glass-pill small magnetic-btn">LinkedIn</a>
+        <a href="https://www.tiktok.com/@official_scholarify" target="_blank" rel="noreferrer" class="footer-glass-pill small magnetic-btn">TikTok</a>
+      </div>
+    </div>
+    <div class="footer-bottom" style="justify-content:center;gap:1rem;flex-wrap:wrap">
+      <span>&copy; 2026 Scholarify. All rights reserved.</span>
+      <a href="https://www.ahmadnaim.site/" target="_blank" rel="noopener noreferrer" style="color:#8B5CF6;font-weight:600;font-size:12px;text-decoration:none">CREATED BY AHMAD NA'IM</a>
+      <button class="footer-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+      </button>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>AOS.init({ duration: 1000, once: true, offset: 100, easing: 'ease-out-cubic' });</script>
+<script>document.documentElement.classList.add('light');</script>
+<script>
+(function () {
+  'use strict';
+
+  var SANITY = { projectId: 'gbwew0c6', dataset: 'production', apiVersion: '2024-01-01' };
+
+  function q(query) {
+    var url = 'https://' + SANITY.projectId + '.api.sanity.io/v' + SANITY.apiVersion + '/data/query/' + SANITY.dataset + '?query=' + encodeURIComponent(query);
+    return fetch(url).then(function (r) { return r.json(); });
+  }
+
+  function imgUrl(ref, w) {
+    if (!ref) return '';
+    w = w || 600;
+    var base = ref.replace(/^image-/, '');
+    var lastDash = base.lastIndexOf('-');
+    var format = base.substring(lastDash + 1);
+    var rest = base.substring(0, lastDash);
+    var dimDash = rest.lastIndexOf('-');
+    var imageId = rest.substring(0, dimDash);
+    return 'https://cdn.sanity.io/images/' + SANITY.projectId + '/' + SANITY.dataset + '/' + imageId + '-' + w + 'x' + Math.round(w * 0.5625) + '.' + format;
+  }
+
+  function resolveImg(item, field, w) {
+    w = w || 600;
+    if (!item) return '';
+    if (item[field + 'Url']) {
+      var url = item[field + 'Url'];
+      if (url.indexOf('?') === -1) return url + '?w=' + w;
+      return url;
+    }
+    var img = item[field];
+    if (!img) return '';
+    var ref = (img.asset && img.asset._ref) || img._ref || '';
+    return imgUrl(ref, w);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(text));
+    return d.innerHTML;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var parts = dateStr.split('-');
+    if (parts.length === 3) {
+      var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      return parseInt(parts[2], 10) + ' ' + months[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+    }
+    return dateStr;
+  }
+
+  function getExcerpt(item) {
+    if (item.ringkasan) return escapeHtml(item.ringkasan);
+    if (item.isiLengkap && Array.isArray(item.isiLengkap)) {
+      var text = '';
+      item.isiLengkap.forEach(function (block) {
+        if (block.children) {
+          block.children.forEach(function (child) {
+            if (child.text) text += child.text;
+          });
+          text += ' ';
+        }
+      });
+      text = text.trim();
+      if (text.length > 180) text = text.substring(0, 180) + '...';
+      return escapeHtml(text);
+    }
+    return '';
+  }
+
+  function renderFeatured(item) {
+    var container = document.getElementById('blog-featured');
+    if (!container) return;
+    var pic = resolveImg(item, 'gambar', 800);
+    var date = formatDate(item.tanggal);
+    var excerpt = getExcerpt(item);
+
+    var html = '<a href="berita.html?id=' + item._id + '" class="blog-featured-card">';
+    if (pic) html += '<img class="blog-featured-img" src="' + pic + '" alt="' + escapeHtml(item.judul) + '" loading="lazy">';
+    html += '<div class="blog-featured-body">';
+    html += '<div class="blog-featured-tag">Artikel Terbaru</div>';
+    html += '<h2 class="blog-featured-title">' + escapeHtml(item.judul) + '</h2>';
+    if (excerpt) html += '<p class="blog-featured-excerpt">' + excerpt + '</p>';
+    html += '<div class="blog-featured-meta"><span>' + date + '</span><span class="dot">&middot;</span><span>Scholarify</span></div>';
+    html += '<span class="blog-read-more">Baca Selengkapnya <span class="arrow">&rarr;</span></span>';
+    html += '</div></a>';
+
+    container.innerHTML = html;
+  }
+
+  function renderGrid(items) {
+    var container = document.getElementById('blog-grid');
+    if (!container) return;
+
+    if (!items.length) {
+      container.innerHTML = '<div class="blog-empty">Belum ada artikel lainnya.</div>';
+      return;
+    }
+
+    var html = '';
+    items.forEach(function (item) {
+      var pic = resolveImg(item, 'gambar', 500);
+      var date = formatDate(item.tanggal);
+      var excerpt = getExcerpt(item);
+
+      html += '<a href="berita.html?id=' + item._id + '" class="blog-card">';
+      html += '<div class="blog-card-img-wrapper">';
+      if (pic) html += '<img class="blog-card-img" src="' + pic + '" alt="' + escapeHtml(item.judul) + '" loading="lazy">';
+      html += '</div>';
+      html += '<div class="blog-card-body">';
+      html += '<div class="blog-card-date">' + date + '</div>';
+      html += '<h3 class="blog-card-title">' + escapeHtml(item.judul) + '</h3>';
+      if (excerpt) html += '<p class="blog-card-excerpt">' + excerpt + '</p>';
+      html += '<span class="blog-card-link">Baca Selengkapnya <span class="arrow">&rarr;</span></span>';
+      html += '</div></a>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  function fetchAndRender() {
+    var query = '*[_type == "news"] | order(tanggal desc) { ..., "gambarUrl": gambar.asset->url }';
+    return q(query).then(function (data) {
+      var items = data.result || [];
+      if (!items.length) {
+        document.getElementById('blog-featured').innerHTML = '<div class="blog-empty">Belum ada berita terbaru.</div>';
+        document.getElementById('blog-grid').innerHTML = '';
+        return;
+      }
+      renderFeatured(items[0]);
+      renderGrid(items.slice(1));
+      if (typeof AOS !== 'undefined') AOS.refresh();
+    }).catch(function (err) {
+      console.error('[Scholarify Blog] Gagal fetch data:', err);
+      document.getElementById('blog-featured').innerHTML = '<div class="blog-empty">Gagal memuat data. Coba refresh halaman.</div>';
+      document.getElementById('blog-grid').innerHTML = '';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchAndRender);
+})();
+</script>
+<script>
+(function() {
+  var hamburger = document.getElementById('navHamburger');
+  var navMobile = document.getElementById('navMobile');
+  if (!hamburger || !navMobile) return;
+  hamburger.addEventListener('click', function() {
+    hamburger.classList.toggle('active');
+    navMobile.classList.toggle('open');
+  });
+  navMobile.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      hamburger.classList.remove('active');
+      navMobile.classList.remove('open');
+    });
+  });
+})();
+</script>
+</body>
+</html>
