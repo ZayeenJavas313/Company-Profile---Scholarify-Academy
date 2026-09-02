@@ -238,7 +238,7 @@
         if (!card) return;
         if (e.target.closest('.admin-btn-edit, .admin-btn-delete, .admin-actions')) return;
         var id = card.dataset.id;
-        if (id) window.open('berita.html?id=' + id, '_blank');
+        if (id) window.open('/berita?id=' + id, '_blank');
       });
     }
   }

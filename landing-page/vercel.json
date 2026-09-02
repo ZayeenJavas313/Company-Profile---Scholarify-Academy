@@ -1,0 +1,14 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/berita", "destination": "/berita.html" },
+    { "source": "/blog", "destination": "/blog.html" },
+    { "source": "/layanan", "destination": "/layanan.html" },
+    { "source": "/program", "destination": "/program.html" },
+    { "source": "/tim", "destination": "/tim.html" },
+    { "source": "/testimoni", "destination": "/testimoni.html" },
+    { "source": "/kontak", "destination": "/kontak.html" }
+  ]
+}
