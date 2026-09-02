@@ -8,25 +8,162 @@
   var currentModal = null;
   var editingId = null;
   var editingType = null;
+  var quillEditor = null;
 
   // ===== UTILITY =====
   function $(sel) { return document.querySelector(sel); }
-
   function $$(sel) { return document.querySelectorAll(sel); }
-
-  function api(path, opts) {
-    return fetch(API_BASE + path, {
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', ...opts?.headers },
-      ...opts,
-    }).then(function (r) { return r.json(); });
-  }
 
   function esc(text) {
     if (!text) return '';
     var d = document.createElement('div');
     d.appendChild(document.createTextNode(text));
     return d.innerHTML;
+  }
+
+  // ===== QUILL LOADER =====
+  var quillLoaded = false;
+  function loadQuill() {
+    if (quillLoaded) return Promise.resolve();
+    return new Promise(function (resolve) {
+      if (window.Quill) { quillLoaded = true; resolve(); return; }
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css';
+      document.head.appendChild(link);
+
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js';
+      script.onload = function () { quillLoaded = true; resolve(); };
+      document.head.appendChild(script);
+    });
+  }
+
+  // ===== SANITY BLOCK CONTENT <-> QUILL DELTA =====
+  function deltaToBlocks(delta) {
+    if (!delta || !delta.ops) return [];
+    var blocks = [];
+    var currentInline = [];
+
+    function flushInline() {
+      if (currentInline.length === 0) return null;
+      var text = '';
+      var marks = [];
+      currentInline.forEach(function (op) {
+        text += op.insert || '';
+        if (op.attributes) {
+          Object.keys(op.attributes).forEach(function (k) {
+            if (k === 'bold') marks.push('strong');
+            else if (k === 'italic') marks.push('em');
+            else if (k === 'code') marks.push('code');
+            else if (k === 'underline') marks.push('underline');
+            else if (k === 'strike') marks.push('strike-through');
+            else if (k === 'link') marks.push({ _type: 'link', href: op.attributes.link || '#' });
+          });
+        }
+      });
+      currentInline = [];
+      return { _type: 'span', text: text, marks: marks.length ? marks : undefined };
+    }
+
+    delta.ops.forEach(function (op) {
+      if (typeof op.insert === 'string') {
+        var lines = op.insert.split('\n');
+        lines.forEach(function (line, i) {
+          if (line) {
+            currentInline.push({ insert: line, attributes: op.attributes });
+          }
+          if (i < lines.length - 1) {
+            var span = flushInline();
+            blocks.push({ _type: 'block', style: 'normal', children: span ? [span] : [{ _type: 'span', text: '' }] });
+          }
+        });
+      } else if (typeof op.insert === 'object' && op.insert && op.insert.image) {
+        var span = flushInline();
+        if (span) blocks.push({ _type: 'block', style: 'normal', children: [span] });
+        var imgUrl = op.insert.image;
+        if (imgUrl && imgUrl.indexOf('data:') === 0) continue;
+        blocks.push({ _type: 'image', asset: { _ref: imgUrl } });
+      }
+    });
+
+    var lastSpan = flushInline();
+    if (lastSpan) blocks.push({ _type: 'block', style: 'normal', children: [lastSpan] });
+
+    var cleaned = [];
+    blocks.forEach(function (b) {
+      if (b._type === 'block' && b.children && b.children.length === 1 && b.children[0].text === '' && cleaned.length > 0) return;
+      cleaned.push(b);
+    });
+    return cleaned;
+  }
+
+  function blocksToDelta(blocks) {
+    if (!blocks || !Array.isArray(blocks)) return { ops: [] };
+    var ops = [];
+
+    blocks.forEach(function (block, idx) {
+      if (idx > 0) ops.push({ insert: '\n' });
+
+      if (block._type === 'image') {
+        var url = '';
+        if (block.asset && block.asset._ref) {
+          var ref = block.asset._ref;
+          var base = ref.replace(/^image-/, '');
+          var lastDash = base.lastIndexOf('-');
+          var format = base.substring(lastDash + 1);
+          var rest = base.substring(0, lastDash);
+          var dimDash = rest.lastIndexOf('-');
+          var imageId = rest.substring(0, dimDash);
+          url = 'https://cdn.sanity.io/images/gbwew0c6/production/' + imageId + '-800x600.' + format;
+        } else if (block.asset && block.asset.url) {
+          url = block.asset.url;
+        }
+        if (url) ops.push({ insert: { image: url } });
+        return;
+      }
+
+      if (block._type !== 'block' || !block.children) return;
+      var style = block.style || 'normal';
+
+      block.children.forEach(function (child, cIdx) {
+        if (child._type === 'span') {
+          var attrs = {};
+          if (child.marks) {
+            child.marks.forEach(function (mark) {
+              if (mark === 'strong') attrs.bold = true;
+              else if (mark === 'em') attrs.italic = true;
+              else if (mark === 'code') attrs.code = true;
+              else if (mark === 'underline') attrs.underline = true;
+              else if (mark === 'strike-through') attrs.strike = true;
+              else if (typeof mark === 'object' && mark._type === 'link' && mark.href) attrs.link = mark.href;
+            });
+          }
+          if (style === 'h2') attrs.header = 2;
+          else if (style === 'h3') attrs.header = 3;
+          else if (style === 'h4') attrs.header = 4;
+          else if (style === 'blockquote') attrs.blockquote = true;
+
+          ops.push({ insert: child.text || '', attributes: Object.keys(attrs).length ? attrs : undefined });
+        }
+      });
+    });
+
+    return { ops: ops };
+  }
+
+  function blocksToPlainText(blocks) {
+    if (!blocks || !Array.isArray(blocks)) return '';
+    var text = '';
+    blocks.forEach(function (block) {
+      if (block._type === 'block' && block.children) {
+        block.children.forEach(function (child) {
+          if (child.text) text += child.text;
+        });
+        text += '\n';
+      }
+    });
+    return text.trim();
   }
 
   // ===== SESSION CHECK =====
@@ -47,30 +184,7 @@
 
   // ===== LOGIN =====
   function showLoginForm() {
-    var overlay = document.getElementById('admin-overlay');
-    var modal = document.getElementById('admin-modal');
-    if (!overlay || !modal) return;
-    overlay.classList.remove('hidden');
-    modal.classList.remove('hidden');
-    modal.innerHTML =
-      '<div class="admin-modal-content" style="max-width:400px">' +
-      '<h3 style="margin:0 0 20px;font-family:var(--font-heading)">Login Admin</h3>' +
-      '<div id="login-error" style="color:#ef4444;font-size:14px;margin-bottom:12px;display:none"></div>' +
-      '<label style="display:block;margin-bottom:6px;font-size:14px;font-weight:600">Password Admin</label>' +
-      '<input type="password" id="login-password" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:16px;font-size:15px">' +
-      '<div style="display:flex;gap:10px">' +
-      '<button id="login-submit" class="liquid-glass" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer">Login</button>' +
-      '<button id="login-cancel" style="padding:10px 20px;border:1px solid var(--color-card-border);border-radius:8px;background:transparent;color:var(--color-card-text);cursor:pointer;font-size:15px">Batal</button>' +
-      '</div></div>';
-    currentModal = 'login';
-
-    $('#login-submit').addEventListener('click', doLogin);
-    $('#login-cancel').addEventListener('click', hideModal);
-    $('#login-password').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') doLogin();
-      if (e.key === 'Escape') hideModal();
-    });
-    setTimeout(function () { $('#login-password').focus(); }, 100);
+    window.location.href = '/login';
   }
 
   function doLogin() {
@@ -144,8 +258,8 @@
         mobileAdmin.onclick = function (e) { e.preventDefault(); closeMobileNav(); doLogout(); };
       } else {
         mobileAdmin.textContent = 'Login Admin';
-        mobileAdmin.href = '#';
-        mobileAdmin.onclick = function (e) { e.preventDefault(); closeMobileNav(); showLoginForm(); };
+        mobileAdmin.href = '/login';
+        mobileAdmin.onclick = function (e) { e.preventDefault(); closeMobileNav(); window.location.href = '/login'; };
       }
     }
 
@@ -180,7 +294,6 @@
   }
 
   function injectActionButtons() {
-    // Mentors
     $$('.team-member').forEach(function (card) {
       if (card.querySelector('.admin-actions')) return;
       var actions = document.createElement('div');
@@ -192,7 +305,6 @@
       card.appendChild(actions);
     });
 
-    // Testimonials
     $$('.testi-card-new').forEach(function (card) {
       if (card.querySelector('.admin-actions')) return;
       var actions = document.createElement('div');
@@ -204,7 +316,6 @@
       card.appendChild(actions);
     });
 
-    // News
     $$('.news-card').forEach(function (card) {
       if (card.querySelector('.admin-actions')) return;
       var actions = document.createElement('div');
@@ -216,7 +327,6 @@
       card.appendChild(actions);
     });
 
-    // Bind events (use event delegation to avoid duplicates)
     document.removeEventListener('click', handleAdminClick);
     document.addEventListener('click', handleAdminClick);
   }
@@ -229,34 +339,15 @@
   // ===== CLICK HANDLER =====
   function handleAdminClick(e) {
     var target = e.target.closest('.admin-btn-edit');
-    if (target) {
-      e.preventDefault();
-      e.stopPropagation();
-      openEditForm(target);
-      return;
-    }
-
+    if (target) { e.preventDefault(); e.stopPropagation(); openEditForm(target); return; }
     target = e.target.closest('.admin-btn-delete');
-    if (target) {
-      e.preventDefault();
-      e.stopPropagation();
-      openDeleteConfirm(target);
-      return;
-    }
-
+    if (target) { e.preventDefault(); e.stopPropagation(); openDeleteConfirm(target); return; }
     target = e.target.closest('.admin-add-btn');
-    if (target) {
-      e.preventDefault();
-      openAddForm(target.dataset.type);
-      return;
-    }
+    if (target) { e.preventDefault(); openAddForm(target.dataset.type); return; }
   }
 
-  // ===== GET DOCUMENT ID =====
   function getDocIdFromCard(card, type) {
-    // Try data-id attribute first
     if (card.dataset.id) return card.dataset.id;
-    // Fallback: find by Sanity ID pattern in HTML
     var img = card.querySelector('img[src*="sanity"]');
     if (img && img.dataset.id) return img.dataset.id;
     return null;
@@ -267,40 +358,28 @@
     var card = btn.closest('.team-member, .testi-card-new, .news-card');
     var type = btn.dataset.type;
     if (!card || !type) return;
-
     editingType = type;
     editingId = getDocIdFromCard(card, type);
     var data = extractCardData(card, type);
-
     showCrudForm(type, data, editingId);
   }
 
   function extractCardData(card, type) {
     var data = {};
     if (type === 'mentor') {
-      var nameEl = card.querySelector('.team-member-name');
-      var roleEl = card.querySelector('.team-member-role');
-      var schoolEl = card.querySelector('.team-member-school');
-      data.nama = nameEl ? nameEl.textContent : '';
-      data.jabatan = roleEl ? roleEl.textContent : '';
-      data.kampus = schoolEl ? schoolEl.textContent.replace(/.*?(?=UGM|UNY|UI|ITB|ITS|UB|UNDIP|UNPAD|UNHAS)/, '').trim() : '';
+      data.nama = (card.querySelector('.team-member-name') || {}).textContent || '';
+      data.jabatan = (card.querySelector('.team-member-role') || {}).textContent || '';
+      data.kampus = (card.querySelector('.team-member-school') || {}).textContent || '';
       data.kategori = card.closest('.team-core-grid-horizontal') ? 'tim-inti' : 'tim-mentor';
     } else if (type === 'testimonial') {
-      var nameEl = card.querySelector('.testi-name-new');
-      var metaEl = card.querySelector('.testi-meta-new');
-      var quoteEl = card.querySelector('.testi-quote-new');
-      var ratingEl = card.querySelectorAll('.star');
-      data.nama = nameEl ? nameEl.textContent : '';
-      data.asalKampus = metaEl ? metaEl.textContent : '';
-      data.isi = quoteEl ? quoteEl.textContent : '';
-      data.rating = ratingEl.length || 5;
+      data.nama = (card.querySelector('.testi-name-new') || {}).textContent || '';
+      data.asalKampus = (card.querySelector('.testi-meta-new') || {}).textContent || '';
+      data.isi = (card.querySelector('.testi-quote-new') || {}).textContent || '';
+      data.rating = card.querySelectorAll('.star').length || 5;
     } else if (type === 'news') {
-      var titleEl = card.querySelector('.news-title');
-      var summaryEl = card.querySelector('.news-summary');
-      var dateEl = card.querySelector('.news-date');
-      data.judul = titleEl ? titleEl.textContent : '';
-      data.ringkasan = summaryEl ? summaryEl.textContent : '';
-      data.tanggal = dateEl ? dateEl.textContent : '';
+      data.judul = (card.querySelector('.news-title') || {}).textContent || '';
+      data.ringkasan = (card.querySelector('.news-summary') || {}).textContent || '';
+      data.tanggal = (card.querySelector('.news-date') || {}).textContent || '';
       data.isiLengkap = card.dataset.isiLengkap || '';
     }
     return data;
@@ -324,54 +403,52 @@
     var typeLabels = { mentor: 'Mentor', testimonial: 'Testimoni', news: 'Berita' };
     title += typeLabels[type] || 'Data';
 
-    var formHtml = '<div class="admin-modal-content"><h3 style="margin:0 0 20px;font-family:var(--font-heading)">' + title + '</h3>';
+    var formHtml = '<div class="admin-modal-content" style="max-width:' + (type === 'news' ? '720px' : '480px') + '">';
+    formHtml += '<h3 style="margin:0 0 20px;font-family:var(--font-heading)">' + title + '</h3>';
     formHtml += '<div id="crud-error" style="color:#ef4444;font-size:14px;margin-bottom:12px;display:none"></div>';
+
+    var inputStyle = 'width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;font-family:var(--font-body)';
+    var labelStyle = 'display:block;margin-bottom:4px;font-size:13px;font-weight:600';
 
     if (type === 'mentor') {
       formHtml +=
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Nama</label>' +
-        '<input type="text" id="f-nama" value="' + esc(data.nama) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Jabatan</label>' +
-        '<input type="text" id="f-jabatan" value="' + esc(data.jabatan) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Kampus</label>' +
-        '<input type="text" id="f-kampus" value="' + esc(data.kampus) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Kategori</label>' +
-        '<select id="f-kategori" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
+        '<label style="' + labelStyle + '">Nama</label><input type="text" id="f-nama" value="' + esc(data.nama) + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Jabatan</label><input type="text" id="f-jabatan" value="' + esc(data.jabatan) + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Kampus</label><input type="text" id="f-kampus" value="' + esc(data.kampus) + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Kategori</label><select id="f-kategori" style="' + inputStyle + '">' +
         '<option value="tim-inti"' + (data.kategori === 'tim-inti' ? ' selected' : '') + '>Tim Inti</option>' +
         '<option value="tim-mentor"' + (data.kategori === 'tim-mentor' || !data.kategori ? ' selected' : '') + '>Tim Mentor</option></select>' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Foto (upload baru atau kosongkan)</label>' +
-        '<input type="file" id="f-foto" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Logo Kampus (upload baru atau kosongkan)</label>' +
-        '<input type="file" id="f-logo" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">';
+        '<label style="' + labelStyle + '">Foto (upload baru atau kosongkan)</label><input type="file" id="f-foto" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">' +
+        '<label style="' + labelStyle + '">Logo Kampus (upload baru atau kosongkan)</label><input type="file" id="f-logo" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">';
     } else if (type === 'testimonial') {
       formHtml +=
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Nama</label>' +
-        '<input type="text" id="f-nama" value="' + esc(data.nama) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Asal Kampus</label>' +
-        '<input type="text" id="f-asalKampus" value="' + esc(data.asalKampus || '') + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Isi Testimoni</label>' +
-        '<textarea id="f-isi" rows="4" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;resize:vertical">' + esc(data.isi || '') + '</textarea>' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Rating (1-5)</label>' +
-        '<input type="number" id="f-rating" min="1" max="5" value="' + (data.rating || 5) + '" style="width:80px;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Foto (upload baru atau kosongkan)</label>' +
-        '<input type="file" id="f-foto" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">';
+        '<label style="' + labelStyle + '">Nama</label><input type="text" id="f-nama" value="' + esc(data.nama) + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Asal Kampus</label><input type="text" id="f-asalKampus" value="' + esc(data.asalKampus || '') + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Isi Testimoni</label><textarea id="f-isi" rows="4" style="' + inputStyle + 'resize:vertical">' + esc(data.isi || '') + '</textarea>' +
+        '<label style="' + labelStyle + '">Rating (1-5)</label><input type="number" id="f-rating" min="1" max="5" value="' + (data.rating || 5) + '" style="width:80px;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
+        '<label style="' + labelStyle + '">Foto (upload baru atau kosongkan)</label><input type="file" id="f-foto" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">';
     } else if (type === 'news') {
       formHtml +=
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Judul</label>' +
-        '<input type="text" id="f-judul" value="' + esc(data.judul || '') + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Ringkasan</label>' +
-        '<textarea id="f-ringkasan" rows="3" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;resize:vertical">' + esc(data.ringkasan || '') + '</textarea>' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Deskripsi / Isi Lengkap</label>' +
-        '<textarea id="f-isiLengkap" rows="6" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px;resize:vertical">' + esc(data.isiLengkap || '') + '</textarea>' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Tanggal</label>' +
-        '<input type="date" id="f-tanggal" value="' + esc(data.tanggal || new Date().toISOString().split('T')[0]) + '" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--color-card-border);background:var(--color-card-bg);color:var(--color-card-text);margin-bottom:12px;font-size:14px">' +
-        '<label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600">Gambar (upload baru atau kosongkan)</label>' +
-        '<input type="file" id="f-gambar" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">';
+        '<label style="' + labelStyle + '">Judul</label><input type="text" id="f-judul" value="' + esc(data.judul || '') + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Ringkasan</label><textarea id="f-ringkasan" rows="3" style="' + inputStyle + 'resize:vertical">' + esc(data.ringkasan || '') + '</textarea>' +
+        '<label style="' + labelStyle + '">Tanggal</label><input type="date" id="f-tanggal" value="' + esc(data.tanggal || new Date().toISOString().split('T')[0]) + '" style="' + inputStyle + '">' +
+        '<label style="' + labelStyle + '">Gambar Sampul (upload baru atau kosongkan)</label><input type="file" id="f-gambar" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">' +
+        '<label style="' + labelStyle + '">Isi Artikel</label>' +
+        '<div id="quill-toolbar" style="border:1px solid var(--color-card-border);border-bottom:none;border-radius:8px 8px 0 0;background:#f8fafc;padding:8px">' +
+        '<span class="ql-formats"><button class="ql-bold" title="Bold"></button><button class="ql-italic" title="Italic"></button><button class="ql-underline" title="Underline"></button><button class="ql-strike" title="Strike"></button></span>' +
+        '<span class="ql-formats"><button class="ql-header" value="2" title="Heading 2"></button><button class="ql-header" value="3" title="Heading 3"></button></span>' +
+        '<span class="ql-formats"><button class="ql-blockquote" title="Quote"></button><button class="ql-code-block" title="Code Block"></button></span>' +
+        '<span class="ql-formats"><button class="ql-list" value="ordered" title="Numbered List"></button><button class="ql-list" value="bullet" title="Bullet List"></button></span>' +
+        '<span class="ql-formats"><button class="ql-link" title="Insert Link"></button><button id="quill-image-btn" title="Insert Image"></button></span>' +
+        '<span class="ql-formats"><button class="ql-clean" title="Clear Formatting"></button></span>' +
+        '</div>' +
+        '<div id="f-editor" style="height:300px;border:1px solid var(--color-card-border);border-radius:0 0 8px 8px;background:#fff;color:#111;font-size:15px"></div>' +
+        '<input type="hidden" id="f-isiLengkap">';
     }
 
     formHtml +=
       '<div id="crud-status" style="font-size:14px;margin-bottom:12px;display:none"></div>' +
-      '<div style="display:flex;gap:10px">' +
+      '<div style="display:flex;gap:10px;margin-top:16px">' +
       '<button id="crud-submit" class="liquid-glass" style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer">' + (isEdit ? 'Simpan Perubahan' : 'Tambah') + '</button>' +
       '<button id="crud-cancel" style="padding:10px 20px;border:1px solid var(--color-card-border);border-radius:8px;background:transparent;color:var(--color-card-text);cursor:pointer;font-size:15px">Batal</button>' +
       '</div></div>';
@@ -383,6 +460,69 @@
 
     $('#crud-submit').addEventListener('click', function () { submitCrud(type, id); });
     $('#crud-cancel').addEventListener('click', hideModal);
+
+    if (type === 'news') {
+      initQuillEditor(data.isiLengkap);
+    }
+  }
+
+  // ===== QUILL INIT =====
+  function initQuillEditor(existingContent) {
+    loadQuill().then(function () {
+      var toolbarHandler = function () {
+        var range = this.quill.getSelection();
+        if (!range) return;
+        var value = this.value;
+        if (value === 'image') {
+          var input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.onchange = function () {
+            var file = input.files[0];
+            if (!file) return;
+            var statusEl = $('#crud-status');
+            if (statusEl) { statusEl.textContent = 'Uploading gambar...'; statusEl.style.display = 'block'; statusEl.style.color = '#F59E0B'; }
+            uploadImage(file).then(function (r) {
+              if (r.url) {
+                quillEditor.insertEmbed(range.index, 'image', r.url);
+                quillEditor.setSelection(range.index + 1);
+              }
+              if (statusEl) statusEl.style.display = 'none';
+            }).catch(function () {
+              if (statusEl) { statusEl.textContent = 'Gagal upload gambar'; statusEl.style.color = '#ef4444'; }
+            });
+          };
+          input.click();
+        }
+      };
+
+      quillEditor = new Quill('#f-editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: {
+            container: '#quill-toolbar',
+            handlers: { image: toolbarHandler }
+          }
+        },
+        placeholder: 'Tulis isi artikel di sini...'
+      });
+
+      var imgBtn = document.getElementById('quill-image-btn');
+      if (imgBtn) {
+        imgBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        imgBtn.className = '';
+      }
+
+      if (existingContent) {
+        try {
+          var parsed = JSON.parse(existingContent);
+          var delta = blocksToDelta(parsed);
+          if (delta.ops && delta.ops.length) quillEditor.setContents(delta);
+        } catch (e) {
+          quillEditor.setText(existingContent);
+        }
+      }
+    });
   }
 
   // ===== SUBMIT CRUD =====
@@ -395,14 +535,10 @@
     btn.disabled = true;
     btn.textContent = 'Menyimpan...';
 
-    // Upload images first if any
-    var fotoRef = null;
-    var logoRef = null;
-    var gambarRef = null;
-
-    var fotoFile = $('#f-foto')?.files?.[0];
-    var logoFile = $('#f-logo')?.files?.[0];
-    var gambarFile = $('#f-gambar')?.files?.[0];
+    var fotoRef = null, logoRef = null, gambarRef = null;
+    var fotoFile = $('#f-foto') && $('#f-foto').files && $('#f-foto').files[0];
+    var logoFile = $('#f-logo') && $('#f-logo').files && $('#f-logo').files[0];
+    var gambarFile = $('#f-gambar') && $('#f-gambar').files && $('#f-gambar').files[0];
 
     var uploads = [];
     if (fotoFile) uploads.push(uploadImage(fotoFile).then(function (r) { fotoRef = r.ref; }));
@@ -413,24 +549,30 @@
       .then(function () {
         var payload = {};
         if (type === 'mentor') {
-          payload.nama = $('#f-nama').value.trim();
-          payload.jabatan = $('#f-jabatan').value.trim();
-          payload.kampus = $('#f-kampus').value.trim();
-          payload.kategori = $('#f-kategori').value;
+          payload.nama = ($('#f-nama') || {}).value || '';
+          payload.jabatan = ($('#f-jabatan') || {}).value || '';
+          payload.kampus = ($('#f-kampus') || {}).value || '';
+          payload.kategori = ($('#f-kategori') || {}).value || 'tim-mentor';
           if (fotoRef) payload.foto = fotoRef;
           if (logoRef) payload.logoKampus = logoRef;
         } else if (type === 'testimonial') {
-          payload.nama = $('#f-nama').value.trim();
-          payload.asalKampus = $('#f-asalKampus').value.trim();
-          payload.isi = $('#f-isi').value.trim();
-          payload.rating = parseInt($('#f-rating').value, 10) || 5;
+          payload.nama = ($('#f-nama') || {}).value || '';
+          payload.asalKampus = ($('#f-asalKampus') || {}).value || '';
+          payload.isi = ($('#f-isi') || {}).value || '';
+          payload.rating = parseInt(($('#f-rating') || {}).value, 10) || 5;
           if (fotoRef) payload.foto = fotoRef;
         } else if (type === 'news') {
-          payload.judul = $('#f-judul').value.trim();
-          payload.ringkasan = $('#f-ringkasan').value.trim();
-          payload.isiLengkap = $('#f-isiLengkap').value.trim();
-          payload.tanggal = $('#f-tanggal').value;
+          payload.judul = ($('#f-judul') || {}).value || '';
+          payload.ringkasan = ($('#f-ringkasan') || {}).value || '';
+          payload.tanggal = ($('#f-tanggal') || {}).value || '';
           if (gambarRef) payload.gambar = gambarRef;
+          if (quillEditor) {
+            var delta = quillEditor.getContents();
+            var blocks = deltaToBlocks(delta);
+            payload.isiLengkap = JSON.stringify(blocks);
+          } else {
+            payload.isiLengkap = ($('#f-isiLengkap') || {}).value || '';
+          }
         }
 
         var method = id ? 'PATCH' : 'POST';
@@ -447,7 +589,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
-          statusEl.textContent = '✓ Berhasil disimpan! Memperbarui tampilan...';
+          statusEl.textContent = '✓ Berhasil disimpan!';
           statusEl.style.display = 'block';
           statusEl.style.color = '#14B8A6';
           setTimeout(function () {
@@ -487,16 +629,9 @@
 
     var id = getDocIdFromCard(card, type);
     var label = '';
-    if (type === 'mentor') {
-      var nameEl = card.querySelector('.team-member-name');
-      label = 'mentor "' + (nameEl ? nameEl.textContent : '') + '"';
-    } else if (type === 'testimonial') {
-      var nameEl = card.querySelector('.testi-name-new');
-      label = 'testimoni "' + (nameEl ? nameEl.textContent : '') + '"';
-    } else if (type === 'news') {
-      var titleEl = card.querySelector('.news-title');
-      label = 'berita "' + (titleEl ? titleEl.textContent : '') + '"';
-    }
+    if (type === 'mentor') label = 'mentor "' + ((card.querySelector('.team-member-name') || {}).textContent || '') + '"';
+    else if (type === 'testimonial') label = 'testimoni "' + ((card.querySelector('.testi-name-new') || {}).textContent || '') + '"';
+    else if (type === 'news') label = 'berita "' + ((card.querySelector('.news-title') || {}).textContent || '') + '"';
 
     var overlay = document.getElementById('admin-overlay');
     var modal = document.getElementById('admin-modal');
@@ -525,10 +660,7 @@
 
       var plural = { mentor: 'mentors', testimonial: 'testimonials', news: 'news' }[type] || type + 's';
       var url = '/api/' + plural + '/' + (id || '');
-      fetch(url, {
-        method: 'DELETE',
-        credentials: 'same-origin',
-      })
+      fetch(url, { method: 'DELETE', credentials: 'same-origin' })
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.success) {
@@ -564,6 +696,7 @@
     var modal = document.getElementById('admin-modal');
     if (overlay) overlay.classList.add('hidden');
     if (modal) modal.classList.add('hidden');
+    quillEditor = null;
     currentModal = null;
     editingId = null;
     editingType = null;
@@ -571,7 +704,6 @@
 
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', function () {
-    // Inject overlay & modal if not present
     if (!document.getElementById('admin-overlay')) {
       var overlay = document.createElement('div');
       overlay.id = 'admin-overlay';
@@ -585,17 +717,11 @@
       modal.className = 'admin-modal hidden';
       document.body.appendChild(modal);
     }
-
     checkSession();
   });
 
-  // Expose functions for inline use
-  window.admin = {
-    showLogin: showLoginForm,
-    logout: doLogout,
-  };
+  window.admin = { showLogin: showLoginForm, logout: doLogout };
 
-  // Re-inject buttons after CMS refresh
   var origRefresh = window.refreshScholarifyData;
   if (origRefresh) {
     window.refreshScholarifyData = function () {
