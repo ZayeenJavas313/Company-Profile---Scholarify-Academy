@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id" style="scroll-behavior:smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Program — Scholarify</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+      .page-section { padding-top: 120px; min-height: 100vh; }
+    </style>
+  </head>
+
+<!-- ========== NAVBAR ========== -->
+<header class="nav-glass">
+  <div class="nav-glass-inner">
+    <a class="nav-glass-brand" href="index.html">
+      Scholarify<sup class="text-xs" style="font-size:0.5em;vertical-align:super">®</sup>
+    </a>
+    <nav class="nav-glass-links">
+      <a href="index.html">Beranda</a>
+      <a href="layanan.html">Layanan</a>
+      <a href="program.html" class="active">Program</a>
+      <a href="tim.html">Tim</a>
+      <a href="testimoni.html">Testimoni</a>
+      <a href="index.html#news">Berita</a>
+      <a href="kontak.html">Kontak</a>
+    </nav>
+    <div class="nav-glass-actions">
+      <a href="https://e-ujian.com/Scholarify" target="_blank" rel="noreferrer" class="btn-journey">TryOut</a>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="nav-mobile" id="navMobile">
+    <a href="index.html">Beranda</a>
+    <a href="layanan.html">Layanan</a>
+    <a href="program.html" class="active">Program</a>
+    <a href="tim.html">Tim</a>
+    <a href="testimoni.html">Testimoni</a>
+    <a href="index.html#news">Berita</a>
+    <a href="kontak.html">Kontak</a>
+  </nav>
+</header>
+
+<!-- ========== PROGRAMS ========== -->
+<section id="programs" class="section page-section" data-aos="fade-up" data-aos-duration="1000">
+  <div class="container">
+    <div class="program-badge">
+      <span class="program-badge-icon"></span>
+      <span>PROGRAM</span>
+    </div>
+    <h2 class="program-title">Pilihan <span class="text-gradient">Program & Kelas</span></h2>
+    <p class="program-subtitle">Temukan program yang sesuai dengan kebutuhan dan targetmu</p>
+
+    <div class="programs-grid-new" data-aos="fade-up" data-aos-delay="100">
+      <div class="program-card-new" onclick="openProgram('regular')" data-aos="fade-up" data-aos-delay="0">
+        <div class="program-icon-wrapper program-icon-green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 19.5C4 18.6716 4.67157 18 5.5 18H18.5C19.3284 18 20 18.6716 20 19.5C20 20.3284 19.3284 21 18.5 21H5.5C4.67157 21 4 20.3284 4 19.5Z" fill="currentColor"/>
+            <path d="M4 4.5C4 3.67157 4.67157 3 5.5 3H18.5C19.3284 3 20 3.67157 20 4.5C20 5.32843 19.3284 6 18.5 6H5.5C4.67157 6 4 5.32843 4 4.5Z" fill="currentColor"/>
+            <path d="M4 12C4 11.1716 4.67157 10.5 5.5 10.5H18.5C19.3284 10.5 20 11.1716 20 12C20 12.8284 19.3284 13.5 18.5 13.5H5.5C4.67157 13.5 4 12.8284 4 12Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3 class="program-card-title">Kelas Reguler</h3>
+        <p class="program-card-desc">Belajar dengan jadwal fleksibel untuk persiapan jangka panjang</p>
+        <a href="#" class="program-card-link" onclick="event.stopPropagation(); event.preventDefault(); openProgram('regular'); return false;">Pelajari <span class="arrow">→</span></a>
+      </div>
+
+      <div class="program-card-new" onclick="openProgram('intensif')" data-aos="fade-up" data-aos-delay="100">
+        <div class="program-icon-wrapper program-icon-orange">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3 class="program-card-title">Kelas Intensif</h3>
+        <p class="program-card-desc">Program akselerasi dengan materi padat dan terstruktur</p>
+        <a href="#" class="program-card-link" onclick="event.stopPropagation(); event.preventDefault(); openProgram('intensif'); return false;">Pelajari <span class="arrow">→</span></a>
+      </div>
+
+      <div class="program-card-new" onclick="openProgram('tryout')" data-aos="fade-up" data-aos-delay="200">
+        <div class="program-icon-wrapper program-icon-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 6.10457 14.1046 7 13 7H11C9.89543 7 9 6.10457 9 5V5Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M9 12H15M9 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="program-card-title">TryOut UTBK</h3>
+        <p class="program-card-desc">Simulasi ujian dengan soal update dan pembahasan lengkap</p>
+        <a href="#" class="program-card-link" onclick="event.stopPropagation(); event.preventDefault(); openProgram('tryout'); return false;">Pelajari <span class="arrow">→</span></a>
+      </div>
+
+      <div class="program-card-new" onclick="openProgram('konsultasi')" data-aos="fade-up" data-aos-delay="300">
+        <div class="program-icon-wrapper program-icon-pink">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="program-card-title">Konsultasi Kampus</h3>
+        <p class="program-card-desc">Konseling personal untuk pemilihan jurusan & universitas</p>
+        <a href="#" class="program-card-link" onclick="event.stopPropagation(); event.preventDefault(); openProgram('konsultasi'); return false;">Pelajari <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MODAL DETAIL PROGRAM ========== -->
+<div id="programModal" class="pro-modal" aria-hidden="true">
+  <div class="pro-backdrop" onclick="closeProgram()"></div>
+  <article class="program-detail-card pro-dialog" role="dialog" aria-modal="true" aria-labelledby="proTitle" aria-describedby="proDesc" tabindex="-1">
+    <button class="pro-close" type="button" aria-label="Tutup" onclick="closeProgram()">×</button>
+    <div class="program-detail-media">
+      <img id="proImage" src="" alt="" loading="lazy">
+    </div>
+    <div class="program-detail-body">
+      <h3 id="proTitle"></h3>
+      <p id="proDesc" class="pro-lead"></p>
+      <ul id="proBullets" class="pro-bullets-new"></ul>
+      <div class="program-detail-cta">
+        <a id="proPrimary" class="btn-pill btn-white" href="kontak.html">Aksi Utama</a>
+        <a id="proSecondary" class="btn-pill btn-outline" href="kontak.html">Lainnya</a>
+      </div>
+    </div>
+  </article>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<div id="footer" class="cinematic-footer-wrapper">
+  <footer class="cinematic-footer">
+    <div class="footer-aurora"></div>
+    <div class="footer-bg-grid"></div>
+    <div class="footer-giant-text">SCHOLARIFY</div>
+    <div class="footer-diagonal-marquee">
+      <div class="footer-marquee-track">
+        <div class="footer-marquee-item">
+          <span>Belajar Intensif</span><span class="dot">✦</span>
+          <span>TryOut UTBK</span><span class="dot">✦</span>
+          <span>Konsultasi Kampus</span><span class="dot">✦</span>
+          <span>Gabung Sekarang</span><span class="dot">✦</span>
+          <span>Mentor Profesional</span><span class="dot">✦</span>
+        </div>
+        <div class="footer-marquee-item">
+          <span>Belajar Intensif</span><span class="dot">✦</span>
+          <span>TryOut UTBK</span><span class="dot">✦</span>
+          <span>Konsultasi Kampus</span><span class="dot">✦</span>
+          <span>Gabung Sekarang</span><span class="dot">✦</span>
+          <span>Mentor Profesional</span><span class="dot">✦</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-center">
+      <h2 class="footer-heading">Let's build your future.</h2>
+      <div class="footer-ctas">
+        <a href="https://wa.me/62895615806060" target="_blank" rel="noreferrer" class="footer-glass-pill magnetic-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat WhatsApp
+        </a>
+        <a href="mailto:officialscholarify@gmail.com" class="footer-glass-pill magnetic-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+          Kirim Email
+        </a>
+      </div>
+      <div class="footer-ctas" style="margin-top:0">
+        <a href="https://instagram.com/official_scholarify" target="_blank" rel="noreferrer" class="footer-glass-pill small magnetic-btn">Instagram</a>
+        <a href="#" class="footer-glass-pill small magnetic-btn">LinkedIn</a>
+        <a href="https://www.tiktok.com/@official_scholarify" target="_blank" rel="noreferrer" class="footer-glass-pill small magnetic-btn">TikTok</a>
+      </div>
+    </div>
+    <div class="footer-bottom" style="justify-content:center;gap:1rem;flex-wrap:wrap">
+      <span>&copy; 2026 Scholarify. All rights reserved.</span>
+      <a href="https://www.ahmadnaim.site/" target="_blank" rel="noopener noreferrer" style="color:#8B5CF6;font-weight:600;font-size:12px;text-decoration:none">CREATED BY AHMAD NA'IM</a>
+      <button class="footer-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+      </button>
+    </div>
+  </footer>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>AOS.init({ duration: 1000, once: true, offset: 100, easing: 'ease-out-cubic' });</script>
+<script>document.documentElement.classList.add('light');</script>
+<script>
+const PROGRAMS = {
+  regular: {
+    title: "Kelas Reguler",
+    image: "assets/program-regular.jpg",
+    desc: "Program pembelajaran berkelanjutan untuk memperkuat konsep dasar & kebiasaan belajar yang sehat.",
+    bullets: ["Soal bertingkat", "Jadwal fleksibel 2–3x per minggu", "Progress report & rekomendasi minggu berikutnya"],
+    primary:   { label: "Daftar Reguler", href: "kontak.html" },
+    secondary: { label: "Layanan & Tarif", href: "kontak.html" },
+  },
+  intensif: {
+    title: "Kelas Intensif",
+    image: "assets/program-intensif.jpg",
+    desc: "Sesi padat & terstruktur dengan fokus drill soal tipe UTBK dan strategi pengerjaan cepat.",
+    bullets: ["Bootcamp + simulasi akhir", "Live coaching strategi per subtest", "Tiket TryOut premium termasuk"],
+    primary:   { label: "Daftar Intensif", href: "kontak.html" },
+    secondary: { label: "Layanan & Tarif", href: "kontak.html" },
+  },
+  tryout: {
+    title: "TryOut UTBK",
+    image: "assets/program-tryout.jpg",
+    desc: "Simulasi UTBK bergaya resmi dengan skoring adaptif & analitik kelemahan-kuatmu.",
+    bullets: ["Dashboard skor", "Analitik butir soal & rekomendasi belajar", "Ranking & sertifikat digital"],
+    primary:   { label: "Ikut TryOut",    href: "https://e-ujian.com/Scholarify" },
+    secondary: { label: "Contoh Laporan", href: "kontak.html" },
+  },
+  konsultasi: {
+    title: "Konsultasi Kampus",
+    image: "assets/program-konsultasi.jpg",
+    desc: "Pendampingan personal untuk pemilihan jurusan, kampus, dan strategi lolos seleksi.",
+    bullets: ["Tes minat-bakat & mapping jurusan", "Simulasi portofolio & berkas pendaftaran", "Rencana aksi sampai submit"],
+    primary:   { label: "Booking Sesi",   href: "kontak.html" },
+    secondary: { label: "Layanan & Tarif", href: "kontak.html" },
+  },
+};
+
+const $modal  = document.getElementById("programModal");
+const $dialog = $modal.querySelector(".pro-dialog");
+const $img    = document.getElementById("proImage");
+const $title  = document.getElementById("proTitle");
+const $desc   = document.getElementById("proDesc");
+const $bul    = document.getElementById("proBullets");
+const $cta1   = document.getElementById("proPrimary");
+const $cta2   = document.getElementById("proSecondary");
+let lastFocus = null;
+
+function openProgram(key) {
+  const data = PROGRAMS[key];
+  if (!data) return;
+  lastFocus = document.activeElement;
+  $img.src = data.image;
+  $img.alt = data.title;
+  $title.textContent = data.title;
+  $desc.textContent  = data.desc;
+  $bul.innerHTML = "";
+  data.bullets.forEach((text) => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    $bul.appendChild(li);
+  });
+  $cta1.textContent = data.primary.label;
+  $cta1.href        = data.primary.href;
+  $cta2.textContent = data.secondary.label;
+  $cta2.href        = data.secondary.href;
+  $modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => $dialog.focus(), 10);
+}
+
+function closeProgram() {
+  $modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  if (lastFocus && typeof lastFocus.focus === "function") {
+    setTimeout(() => lastFocus.focus(), 50);
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  if ($modal.getAttribute("aria-hidden") === "false") {
+    if (e.key === "Escape") closeProgram();
+    if (e.key === "Tab") {
+      const focusables = $dialog.querySelectorAll("a, button, [tabindex]:not([tabindex='-1'])");
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last  = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+      else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+    }
+  }
+});
+
+window.openProgram  = openProgram;
+window.closeProgram = closeProgram;
+</script>
+<script>
+(function() {
+  var hamburger = document.getElementById('navHamburger');
+  var navMobile = document.getElementById('navMobile');
+  if (!hamburger || !navMobile) return;
+  hamburger.addEventListener('click', function() {
+    hamburger.classList.toggle('active');
+    navMobile.classList.toggle('open');
+  });
+  navMobile.querySelectorAll('a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      hamburger.classList.remove('active');
+      navMobile.classList.remove('open');
+    });
+  });
+})();
+</script>
+</body>
+</html>
