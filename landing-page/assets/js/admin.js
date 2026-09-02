@@ -171,21 +171,15 @@
     return fetch(API_BASE + '/verify', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        isLoggedIn = data.loggedIn === true;
-        if (isLoggedIn) {
+        var confirmed = data.loggedIn === true;
+        if (confirmed) {
           try { localStorage.setItem('scholarify_logged_in', '1'); } catch (e) {}
-        } else {
-          try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
         }
-        updateAdminUI();
-        return isLoggedIn;
+        return confirmed;
       })
       .catch(function (err) {
         console.error('checkSession error:', err);
-        isLoggedIn = false;
-        try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
-        updateAdminUI();
-        return false;
+        return isLoggedIn;
       });
   }
 
@@ -727,12 +721,18 @@
     }
 
     var urlParam = new URLSearchParams(window.location.search);
-    if (urlParam.get('admin') === '1' || localStorage.getItem('scholarify_logged_in') === '1') {
+    var fromStorage = localStorage.getItem('scholarify_logged_in') === '1';
+    if (urlParam.get('admin') === '1' || fromStorage) {
       isLoggedIn = true;
       updateAdminUI();
     }
 
-    checkSession();
+    checkSession().then(function (confirmed) {
+      if (confirmed) {
+        isLoggedIn = true;
+        updateAdminUI();
+      }
+    });
   });
 
   window.admin = { showLogin: showLoginForm, logout: doLogout };
