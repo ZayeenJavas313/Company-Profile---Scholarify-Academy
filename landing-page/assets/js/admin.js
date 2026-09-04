@@ -44,6 +44,7 @@
     if (!delta || !delta.ops) return [];
     var blocks = [];
     var currentInline = [];
+    var currentStyle = 'normal';
 
     function flushInline() {
       if (currentInline.length === 0) return null;
@@ -66,16 +67,36 @@
       return { _type: 'span', text: text, marks: marks.length ? marks : undefined };
     }
 
+    function flushBlock() {
+      var span = flushInline();
+      if (span || currentStyle !== 'normal') {
+        blocks.push({
+          _type: 'block',
+          style: currentStyle,
+          children: span ? [span] : [{ _type: 'span', text: '' }]
+        });
+      }
+      currentStyle = 'normal';
+    }
+
     delta.ops.forEach(function (op) {
       if (typeof op.insert === 'string') {
         var lines = op.insert.split('\n');
         lines.forEach(function (line, i) {
           if (line) {
+            var attrs = op.attributes || {};
+            if (attrs.header) {
+              flushBlock();
+              currentStyle = 'h' + attrs.header;
+            }
+            if (attrs.blockquote) {
+              flushBlock();
+              currentStyle = 'blockquote';
+            }
             currentInline.push({ insert: line, attributes: op.attributes });
           }
           if (i < lines.length - 1) {
-            var span = flushInline();
-            blocks.push({ _type: 'block', style: 'normal', children: span ? [span] : [{ _type: 'span', text: '' }] });
+            flushBlock();
           }
         });
       } else if (typeof op.insert === 'object' && op.insert && op.insert.image) {
@@ -87,8 +108,7 @@
       }
     });
 
-    var lastSpan = flushInline();
-    if (lastSpan) blocks.push({ _type: 'block', style: 'normal', children: [lastSpan] });
+    flushBlock();
 
     var cleaned = [];
     blocks.forEach(function (b) {
@@ -125,6 +145,11 @@
 
       if (block._type !== 'block' || !block.children) return;
       var style = block.style || 'normal';
+      var headerLevel = 0;
+      if (style === 'h1') headerLevel = 1;
+      else if (style === 'h2') headerLevel = 2;
+      else if (style === 'h3') headerLevel = 3;
+      else if (style === 'h4') headerLevel = 4;
 
       block.children.forEach(function (child, cIdx) {
         if (child._type === 'span') {
@@ -139,9 +164,7 @@
               else if (typeof mark === 'object' && mark._type === 'link' && mark.href) attrs.link = mark.href;
             });
           }
-          if (style === 'h2') attrs.header = 2;
-          else if (style === 'h3') attrs.header = 3;
-          else if (style === 'h4') attrs.header = 4;
+          if (headerLevel) attrs.header = headerLevel;
           else if (style === 'blockquote') attrs.blockquote = true;
 
           ops.push({ insert: child.text || '', attributes: Object.keys(attrs).length ? attrs : undefined });
@@ -174,6 +197,8 @@
         var confirmed = data.loggedIn === true;
         if (confirmed) {
           try { localStorage.setItem('scholarify_logged_in', '1'); } catch (e) {}
+        } else {
+          try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
         }
         return confirmed;
       })
@@ -437,8 +462,8 @@
         '<label style="' + labelStyle + '">Gambar Sampul (upload baru atau kosongkan)</label><input type="file" id="f-gambar" accept="image/*" style="width:100%;margin-bottom:12px;font-size:14px">' +
         '<label style="' + labelStyle + '">Isi Artikel</label>' +
         '<div id="quill-toolbar" style="border:1px solid var(--color-card-border);border-bottom:none;border-radius:8px 8px 0 0;background:#f8fafc;padding:8px">' +
+        '<span class="ql-formats"><select class="ql-header" title="Heading"><option value="1">Heading 1</option><option value="2">Heading 2</option><option value="3">Heading 3</option><option value="" selected>Normal</option></select></span>' +
         '<span class="ql-formats"><button class="ql-bold" title="Bold"></button><button class="ql-italic" title="Italic"></button><button class="ql-underline" title="Underline"></button><button class="ql-strike" title="Strike"></button></span>' +
-        '<span class="ql-formats"><button class="ql-header" value="2" title="Heading 2"></button><button class="ql-header" value="3" title="Heading 3"></button></span>' +
         '<span class="ql-formats"><button class="ql-blockquote" title="Quote"></button><button class="ql-code-block" title="Code Block"></button></span>' +
         '<span class="ql-formats"><button class="ql-list" value="ordered" title="Numbered List"></button><button class="ql-list" value="bullet" title="Bullet List"></button></span>' +
         '<span class="ql-formats"><button class="ql-link" title="Insert Link"></button><button id="quill-image-btn" title="Insert Image"></button></span>' +
@@ -471,39 +496,35 @@
   // ===== QUILL INIT =====
   function initQuillEditor(existingContent) {
     loadQuill().then(function () {
-      var toolbarHandler = function () {
-        var range = this.quill.getSelection();
-        if (!range) return;
-        var value = this.value;
-        if (value === 'image') {
-          var input = document.createElement('input');
-          input.type = 'file';
-          input.accept = 'image/*';
-          input.onchange = function () {
-            var file = input.files[0];
-            if (!file) return;
-            var statusEl = $('#crud-status');
-            if (statusEl) { statusEl.textContent = 'Uploading gambar...'; statusEl.style.display = 'block'; statusEl.style.color = '#F59E0B'; }
-            uploadImage(file).then(function (r) {
-              if (r.url) {
-                quillEditor.insertEmbed(range.index, 'image', r.url);
-                quillEditor.setSelection(range.index + 1);
-              }
-              if (statusEl) statusEl.style.display = 'none';
-            }).catch(function () {
-              if (statusEl) { statusEl.textContent = 'Gagal upload gambar'; statusEl.style.color = '#ef4444'; }
-            });
-          };
-          input.click();
-        }
-      };
-
       quillEditor = new Quill('#f-editor', {
         theme: 'snow',
         modules: {
           toolbar: {
             container: '#quill-toolbar',
-            handlers: { image: toolbarHandler }
+            handlers: {
+              image: function () {
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = function () {
+                  var file = input.files[0];
+                  if (!file) return;
+                  var statusEl = $('#crud-status');
+                  if (statusEl) { statusEl.textContent = 'Uploading gambar...'; statusEl.style.display = 'block'; statusEl.style.color = '#F59E0B'; }
+                  uploadImage(file).then(function (r) {
+                    if (r.url) {
+                      var range = quillEditor.getSelection(true);
+                      quillEditor.insertEmbed(range.index, 'image', r.url);
+                      quillEditor.setSelection(range.index + 1);
+                    }
+                    if (statusEl) statusEl.style.display = 'none';
+                  }).catch(function () {
+                    if (statusEl) { statusEl.textContent = 'Gagal upload gambar'; statusEl.style.color = '#ef4444'; }
+                  });
+                };
+                input.click();
+              }
+            }
           }
         },
         placeholder: 'Tulis isi artikel di sini...'
@@ -591,7 +612,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
-          statusEl.textContent = '✓ Berhasil disimpan!';
+          statusEl.textContent = 'Berhasil disimpan!';
           statusEl.style.display = 'block';
           statusEl.style.color = '#14B8A6';
           setTimeout(function () {
@@ -644,7 +665,7 @@
     currentModal = 'confirm-delete';
     modal.innerHTML =
       '<div class="admin-modal-content" style="max-width:400px;text-align:center">' +
-      '<div style="font-size:48px;margin-bottom:12px">🗑️</div>' +
+      '<div style="font-size:48px;margin-bottom:12px">&#128465;&#65039;</div>' +
       '<h3 style="margin:0 0 8px;font-family:var(--font-heading)">Hapus ' + label + '?</h3>' +
       '<p style="color:var(--color-muted);font-size:14px;margin:0 0 20px">Tindakan ini tidak bisa dibatalkan.</p>' +
       '<div id="delete-status" style="font-size:14px;margin-bottom:12px;display:none"></div>' +
@@ -666,7 +687,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.success) {
-            statusEl.textContent = '✓ Berhasil dihapus!';
+            statusEl.textContent = 'Berhasil dihapus!';
             statusEl.style.display = 'block';
             statusEl.style.color = '#14B8A6';
             setTimeout(function () {
@@ -720,33 +741,24 @@
       document.body.appendChild(modal);
     }
 
-    var urlParam = new URLSearchParams(window.location.search);
-    var fromStorage = localStorage.getItem('scholarify_logged_in') === '1';
-    if (urlParam.get('admin') === '1' || fromStorage) {
-      isLoggedIn = true;
-      updateAdminUI();
-    }
-
     checkSession().then(function (confirmed) {
-      if (confirmed) {
-        isLoggedIn = true;
-      } else {
-        isLoggedIn = false;
-        try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
-      }
+      isLoggedIn = confirmed;
       updateAdminUI();
-      retryInjectButtons();
+      if (confirmed) {
+        waitForCardsAndInject();
+      }
     });
 
-    function retryInjectButtons() {
-      if (!isLoggedIn) return;
+    function waitForCardsAndInject() {
       var attempts = 0;
+      var maxAttempts = 30;
       var interval = setInterval(function () {
-        if (document.querySelectorAll('.team-member, .testi-card-new, .news-card').length > 0 || attempts >= 20) {
+        attempts++;
+        var cards = document.querySelectorAll('.team-member, .testi-card-new, .news-card');
+        if (cards.length > 0 || attempts >= maxAttempts) {
           clearInterval(interval);
           injectActionButtons();
         }
-        attempts++;
       }, 500);
     }
   });

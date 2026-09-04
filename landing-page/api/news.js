@@ -8,8 +8,15 @@ function sanitize(text) {
 
 function textToBlocks(text) {
   if (!text) return undefined;
+  if (typeof text === 'string') {
+    try {
+      var parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) return parsed.length ? parsed : undefined;
+    } catch (e) {}
+  }
+  if (Array.isArray(text)) return text.length ? text : undefined;
   var blocks = [];
-  var paragraphs = text.split(/\n\s*\n/);
+  var paragraphs = String(text).split(/\n\s*\n/);
   paragraphs.forEach(function (p) {
     p = p.trim();
     if (!p) return;

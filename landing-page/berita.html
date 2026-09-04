@@ -150,6 +150,14 @@
       color: var(--color-card-text);
     }
     .blog-article-content p { margin: 0 0 1.4em; }
+    .blog-article-content h1 {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 2.2em 0 0.6em;
+      font-family: var(--font-heading);
+      color: var(--color-card-text);
+      letter-spacing: -0.4px;
+    }
     .blog-article-content h2 {
       font-size: 24px;
       font-weight: 700;
@@ -382,10 +390,22 @@
     function blockContentToHtml(blocks) {
       if (!blocks || !Array.isArray(blocks)) return '';
       var html = '';
+      var listBuffer = [];
+      var listType = '';
+
+      function flushList() {
+        if (listBuffer.length === 0) return;
+        var tag = listType === 'number' ? 'ol' : 'ul';
+        html += '<' + tag + '>' + listBuffer.join('') + '</' + tag + '>';
+        listBuffer = [];
+        listType = '';
+      }
+
       blocks.forEach(function (block) {
         if (block._type === 'block') {
           var tag = 'p';
           switch (block.style) {
+            case 'h1': tag = 'h1'; break;
             case 'h2': tag = 'h2'; break;
             case 'h3': tag = 'h3'; break;
             case 'h4': tag = 'h4'; break;
@@ -412,11 +432,18 @@
             });
           }
           if (block.listItem === 'bullet' || block.listItem === 'number') {
-            html += '<li>' + inner + '</li>';
+            var newListType = block.listItem;
+            if (listType !== newListType) {
+              flushList();
+              listType = newListType;
+            }
+            listBuffer.push('<li>' + inner + '</li>');
           } else {
+            flushList();
             html += '<' + tag + '>' + inner + '</' + tag + '>';
           }
         } else if (block._type === 'image') {
+          flushList();
           var asset = block.asset || {};
           var ref = asset._ref || '';
           if (ref) {
@@ -431,21 +458,8 @@
           }
         }
       });
-      var ulOpen = false;
-      var lines = html.split('</li>');
-      var result = '';
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        if (line.indexOf('<li>') !== -1) {
-          if (!ulOpen) { result += '<ul>'; ulOpen = true; }
-        } else {
-          if (ulOpen) { result += '</ul>'; ulOpen = false; }
-        }
-        result += line;
-        if (i < lines.length - 1) result += '</li>';
-      }
-      if (ulOpen) result += '</ul>';
-      return result;
+      flushList();
+      return html;
     }
 
     function formatDate(dateStr) {
