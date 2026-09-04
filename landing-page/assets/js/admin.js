@@ -730,9 +730,25 @@
     checkSession().then(function (confirmed) {
       if (confirmed) {
         isLoggedIn = true;
-        updateAdminUI();
+      } else {
+        isLoggedIn = false;
+        try { localStorage.removeItem('scholarify_logged_in'); } catch (e) {}
       }
+      updateAdminUI();
+      retryInjectButtons();
     });
+
+    function retryInjectButtons() {
+      if (!isLoggedIn) return;
+      var attempts = 0;
+      var interval = setInterval(function () {
+        if (document.querySelectorAll('.team-member, .testi-card-new, .news-card').length > 0 || attempts >= 20) {
+          clearInterval(interval);
+          injectActionButtons();
+        }
+        attempts++;
+      }, 500);
+    }
   });
 
   window.admin = { showLogin: showLoginForm, logout: doLogout };
