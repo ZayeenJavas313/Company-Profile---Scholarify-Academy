@@ -82,7 +82,7 @@
         var span = flushInline();
         if (span) blocks.push({ _type: 'block', style: 'normal', children: [span] });
         var imgUrl = op.insert.image;
-        if (imgUrl && imgUrl.indexOf('data:') === 0) continue;
+        if (imgUrl && imgUrl.indexOf('data:') === 0) return;
         blocks.push({ _type: 'image', asset: { _ref: imgUrl } });
       }
     });
