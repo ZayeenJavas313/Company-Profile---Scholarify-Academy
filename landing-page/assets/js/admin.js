@@ -45,6 +45,7 @@
     var blocks = [];
     var currentInline = [];
     var currentStyle = 'normal';
+    var currentAlign = '';
 
     function flushInline() {
       if (currentInline.length === 0) return null;
@@ -70,13 +71,18 @@
     function flushBlock() {
       var span = flushInline();
       if (span || currentStyle !== 'normal') {
-        blocks.push({
+        var block = {
           _type: 'block',
           style: currentStyle,
           children: span ? [span] : [{ _type: 'span', text: '' }]
-        });
+        };
+        if (currentAlign && currentAlign !== 'left') {
+          block.data = { alignment: currentAlign };
+        }
+        blocks.push(block);
       }
       currentStyle = 'normal';
+      currentAlign = '';
     }
 
     delta.ops.forEach(function (op) {
@@ -92,6 +98,9 @@
             if (attrs.blockquote) {
               flushBlock();
               currentStyle = 'blockquote';
+            }
+            if (attrs.align) {
+              currentAlign = attrs.align;
             }
             currentInline.push({ insert: line, attributes: op.attributes });
           }
@@ -151,6 +160,8 @@
       else if (style === 'h3') headerLevel = 3;
       else if (style === 'h4') headerLevel = 4;
 
+      var alignment = (block.data && block.data.alignment) || '';
+
       block.children.forEach(function (child, cIdx) {
         if (child._type === 'span') {
           var attrs = {};
@@ -166,6 +177,7 @@
           }
           if (headerLevel) attrs.header = headerLevel;
           else if (style === 'blockquote') attrs.blockquote = true;
+          if (alignment && alignment !== 'left') attrs.align = alignment;
 
           ops.push({ insert: child.text || '', attributes: Object.keys(attrs).length ? attrs : undefined });
         }
@@ -464,6 +476,7 @@
         '<div id="quill-toolbar" style="border:1px solid var(--color-card-border);border-bottom:none;border-radius:8px 8px 0 0;background:#f8fafc;padding:8px">' +
         '<span class="ql-formats"><select class="ql-header" title="Heading"><option value="1">Heading 1</option><option value="2">Heading 2</option><option value="3">Heading 3</option><option value="" selected>Normal</option></select></span>' +
         '<span class="ql-formats"><button class="ql-bold" title="Bold"></button><button class="ql-italic" title="Italic"></button><button class="ql-underline" title="Underline"></button><button class="ql-strike" title="Strike"></button></span>' +
+        '<span class="ql-formats"><select class="ql-align" title="Text Align"><option value="">Default</option><option value="center">Center</option><option value="right">Right</option><option value="justify">Justify</option></select></span>' +
         '<span class="ql-formats"><button class="ql-blockquote" title="Quote"></button><button class="ql-code-block" title="Code Block"></button></span>' +
         '<span class="ql-formats"><button class="ql-list" value="ordered" title="Numbered List"></button><button class="ql-list" value="bullet" title="Bullet List"></button></span>' +
         '<span class="ql-formats"><button class="ql-link" title="Insert Link"></button><button id="quill-image-btn" title="Insert Image"></button></span>' +

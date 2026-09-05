@@ -440,7 +440,11 @@
             listBuffer.push('<li>' + inner + '</li>');
           } else {
             flushList();
-            html += '<' + tag + '>' + inner + '</' + tag + '>';
+            var alignStyle = '';
+            if (block.data && block.data.alignment && block.data.alignment !== 'left') {
+              alignStyle = ' style="text-align:' + block.data.alignment + '"';
+            }
+            html += '<' + tag + alignStyle + '>' + inner + '</' + tag + '>';
           }
         } else if (block._type === 'image') {
           flushList();
