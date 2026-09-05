@@ -18,8 +18,10 @@
 ```
 User Browser → scholarify.id
   │
-  ├── GET landing page (index.html, style.css, assets/*)
+  ├── GET halaman (index.html, blog.html, berita.html, dll)
   │     └── Read data → fetch Sanity CDN (GROQ query)
+  │
+  ├── GET /login → halaman login admin dedicated
   │
   └── POST/PATCH/DELETE (admin) → /api/* (Vercel Serverless)
         └── Write data → Sanity Mutate API (dengan write token)
@@ -50,9 +52,17 @@ User Browser → scholarify.id
 
 | Path | Fungsi |
 |---|---|
-| `index.html` | Halaman utama landing page |
-| `berita.html` | Halaman detail berita (single page) |
-| `style.css` | Semua styling (5448 baris) |
+| `index.html` | Halaman utama landing page (hero, tim, program, testimoni, berita, CTA) |
+| `login.html` | Halaman login admin (`/login`) — dedicated page dengan password show/hide toggle |
+| `blog.html` | Halaman listing blog/berita (`/blog`) — grid featured + card |
+| `berita.html` | Halaman detail berita (`/berita?id=xxx`) — rich text rendering (h1-h4, blockquote, lists, alignment) + share buttons |
+| `layanan.html` | Halaman Layanan (`/layanan`) |
+| `program.html` | Halaman Program (`/program`) — dengan modal detail |
+| `tim.html` | Halaman Tim (`/tim`) — fetch dari Sanity |
+| `testimoni.html` | Halaman Testimoni (`/testimoni`) — fetch dari Sanity |
+| `kontak.html` | Halaman Kontak (`/kontak`) |
+| `vercel.json` | Clean URL rewrites config (`cleanUrls: true` + rewrites) |
+| `style.css` | Semua styling (termasuk admin actions opacity toggle, login styles) |
 | `generate-hash.js` | Utility untuk generate bcrypt hash password admin |
 | `package.json` | Dependencies serverless (bcryptjs, jsonwebtoken, busboy) |
 | `favicon.ico` | Icon website |
@@ -60,21 +70,20 @@ User Browser → scholarify.id
 | `.gitignore` | Git ignore rules |
 | `api/` | Serverless functions (Vercel) |
 | `api/_lib/` | Library bersama (verify-session.js, sanity.js, rate-limit.js) |
-| `api/login.js` | Login admin (POST) |
-| `api/logout.js` | Logout admin (POST) |
-| `api/verify.js` | Verifikasi session (GET) |
+| `api/login.js` | Login admin (POST) — bcrypt compare + JWT cookie |
+| `api/logout.js` | Logout admin (POST) — clear cookies |
+| `api/verify.js` | Verifikasi session (GET) — verify JWT cookie |
 | `api/mentors.js` | Create mentor (POST) |
 | `api/mentors/[id].js` | Update/Delete mentor (PATCH/DELETE) |
 | `api/testimonials.js` | Create testimonial (POST) |
 | `api/testimonials/[id].js` | Update/Delete testimonial (PATCH/DELETE) |
-| `api/news.js` | Create berita (POST) |
-| `api/news/[id].js` | Update/Delete berita (PATCH/DELETE) |
+| `api/news.js` | Create berita (POST) — textToBlocks handles JSON + plain text |
+| `api/news/[id].js` | Update/Delete berita (PATCH/DELETE) — textToBlocks handles JSON + plain text |
 | `api/upload-image.js` | Upload image ke Sanity (POST) |
-| `assets/` | Gambar & JS statis |
-| `assets/js/sanity.js` | Fetch data dari Sanity & render ke DOM |
-| `assets/js/admin.js` | Admin panel (login, CRUD modal, UI) |
-| `assets/feat-*.svg` | Icon fitur (digunakan di index.html) |
-| `assets/program-*.jpg` | Gambar program (digunakan di modal program) |
+| `assets/js/sanity.js` | Fetch data dari Sanity & render ke DOM (mentor, testimoni, berita) |
+| `assets/js/admin.js` | Admin panel: session check, CRUD modal, Quill rich text editor (H1-H3, alignment, lists, images, links, code block, blockquote) |
+| `assets/feat-*.svg` | Icon fitur |
+| `assets/program-*.jpg` | Gambar program |
 
 ### frontend/ — SISTEM TRYOUT (INDEPENDEN)
 
@@ -85,11 +94,10 @@ User Browser → scholarify.id
 | **Fungsi** | Platform TryOut online untuk simulasi UTBK |
 | **Framework** | Next.js 16 + React 19 + TypeScript |
 | **CSS** | Tailwind CSS 3 |
-| **Status integrasi** | **Belum terhubung penuh** ke landing page. Landing page menunjuk ke `https://e-ujian.com/Scholarify` untuk TryOut. Sistem ini berdiri sendiri dengan backend Django-nya. |
+| **Status integrasi** | **Belum terhubung penuh** ke landing page. Landing page menunjuk ke `https://e-ujian.com/Scholarify` untuk TryOut. |
 | **Base URL API** | `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api` |
 | **Cara run** | `cd frontend && npm install && npm run dev` (butuh Django backend running) |
 | **Dependencies utama** | next, react, tailwindcss, gsap, aos, lucide-react, heroicons |
-| **Catatan** | Memiliki login sendiri (student/admin), sistem batch, subtest, timer, scoring, dan admin dashboard. Belum diintegrasikan ke landing page utama. |
 
 ### backend/ — SISTEM TRYOUT (INDEPENDEN)
 
@@ -103,8 +111,6 @@ User Browser → scholarify.id
 | **Status integrasi** | **Berdiri sendiri**, backend untuk frontend/ (Next.js TryOut). Belum terintegrasi ke landing page. |
 | **Cara run** | `cd backend && pip install -r requirements.txt && python manage.py runserver` |
 | **Env vars** | `SECRET_KEY`, `DEBUG`, `DATABASE_URL` |
-| **Dependencies** | Django, djangorestframework, django-cors-headers, gunicorn, psycopg2, openpyxl, Pillow |
-| **Catatan** | API endpoint di `/api/*` (34 endpoint) untuk login, CRUD soal, batch, user, hasil tryout. Ada management commands: `seed_subtests`, `import_soal_excel`. |
 
 ---
 
@@ -152,26 +158,42 @@ User Browser → scholarify.id
 
 ---
 
-## e. Sistem TryOut (frontend/ & backend/)
+## e. Clean URL Routes
+
+`vercel.json` mengaktifkan `cleanUrls: true` dengan rewrites untuk semua halaman:
+
+| URL | File |
+|---|---|
+| `/` | `index.html` |
+| `/login` | `login.html` |
+| `/blog` | `blog.html` |
+| `/berita` | `berita.html` (query param `?id=xxx`) |
+| `/layanan` | `layanan.html` |
+| `/program` | `program.html` |
+| `/tim` | `tim.html` |
+| `/testimoni` | `testimoni.html` |
+| `/kontak` | `kontak.html` |
+
+Semua internal link di seluruh halaman sudah menggunakan clean URL (tanpa `.html` extension).
+
+---
+
+## f. Sistem TryOut (frontend/ & backend/)
 
 ### frontend/ — Next.js App
 - **Framework:** Next.js 16, React 19, TypeScript, Tailwind CSS
 - **Fungsi:** Halaman login, dashboard tryout, pengerjaan soal (timer), admin panel tryout
-- **Dependencies:** next, react, tailwindcss, gsap, aos, lucide-react, heroicons, clsx, class-variance-authority
 - **Cara menjalankan:**
   ```bash
-  cd frontend
-  npm install
-  npm run dev
+  cd frontend && npm install && npm run dev
   ```
 - **Environment variables:** `NEXT_PUBLIC_API_BASE_URL` (default: `http://localhost:8000/api`)
-- **Catatan:** Butuh Django backend (backend/) berjalan untuk login dan data. Saat ini belum terintegrasi ke landing page utama scholarify.id.
+- **Catatan:** Butuh Django backend (backend/) berjalan untuk login dan data. Belum terintegrasi ke landing page utama.
 
 ### backend/ — Django REST API
 - **Framework:** Django 5.2, Django REST Framework 3.15
 - **Fungsi:** API untuk sistem TryOut — autentikasi, CRUD soal/batch/user, scoring
 - **Database:** SQLite (development), PostgreSQL (production via `DATABASE_URL`)
-- **Dependencies:** Django, djangorestframework, django-cors-headers, gunicorn, psycopg2-binary, openpyxl, Pillow, python-dotenv
 - **Cara menjalankan:**
   ```bash
   cd backend
@@ -181,29 +203,77 @@ User Browser → scholarify.id
   python manage.py runserver
   ```
 - **Environment variables:** `SECRET_KEY`, `DEBUG`, `DATABASE_URL`
-- **API endpoints:** 34 endpoint di `/api/*` (login, batches, subtests, questions, submit jawaban, admin dashboard)
+- **API endpoints:** 34 endpoint di `/api/*`
 
 ---
 
-## f. Environment Variables
+## g. Admin Panel & Login System
 
-### Root (landing-page/)
+### Login Flow
+1. Klik tombol **"Login"** di navbar → redirect ke `/login`
+2. Masukkan password admin → `POST /api/login`
+3. Backend: bcrypt compare → generate JWT → set cookie `scholarify_session` (HttpOnly, SameSite=Strict, Secure, Path=/, Max-Age=86400)
+4. Juga set cookie `scholarify_logged_in` (readable by JS) untuk UI state
+5. Redirect ke `/?admin=1` → admin UI muncul (opacity toggle via CSS class `admin-logged-in`)
+
+### Login State Management
+- `checkSession()` = source of truth — `GET /api/verify` checks JWT cookie
+- `localStorage.scholarify_logged_in` hanya hint untuk avoid flash of wrong UI
+- Jika session valid → tambah class `admin-logged-in` ke `<body>` → `.admin-actions` opacity: 1
+- Jika tidak valid → hapus class → `.admin-actions` opacity: 0
+
+### Logout Flow
+- Klik **"Logout"** → `POST /api/logout` → clear cookies → remove localStorage → reload
+
+### Quill Rich Text Editor (Berita)
+Fitur editor:
+- **Headings:** H1, H2, H3 (dropdown)
+- **Text formatting:** Bold, Italic, Underline, Strikethrough, Code, Link
+- **Block formatting:** Blockquote, Code Block, Ordered List, Bullet List
+- **Alignment:** Left, Center, Right, Justify (dropdown)
+- **Media:** Image upload (via `/api/upload-image` → Sanity asset)
+- **Utility:** Clear Formatting
+
+### Admin CRUD Operations
+| Action | Method | Endpoint |
+|---|---|---|
+| Create mentor | POST | `/api/mentors` |
+| Update mentor | PATCH | `/api/mentors/[id]` |
+| Delete mentor | DELETE | `/api/mentors/[id]` |
+| Create testimonial | POST | `/api/testimonials` |
+| Update testimonial | PATCH | `/api/testimonials/[id]` |
+| Delete testimonial | DELETE | `/api/testimonials/[id]` |
+| Create berita | POST | `/api/news` |
+| Update berita | PATCH | `/api/news/[id]` |
+| Delete berita | DELETE | `/api/news/[id]` |
+| Upload image | POST | `/api/upload-image` |
+
+### Admin Button Injection
+- `waitForCardsAndInject()` polls (30 attempts × 500ms = 15s) to inject edit/delete buttons after Sanity cards load
+- `refreshScholarifyData` wrapper re-injects buttons after data refresh
+- Buttons appear on hover for each card
+
+---
+
+## h. Environment Variables
+
+### landing-page/
 
 | Variable | Fungsi |
 |---|---|
-| `ADMIN_PASSWORD_HASH` | Bcrypt hash password admin (disimpan di Vercel env) |
-| `JWT_SECRET` | Secret key untuk JWT token session admin |
-| `SANITY_WRITE_TOKEN` | API token Sanity untuk write operations (via image upload & CRUD) |
+| `ADMIN_PASSWORD_HASH` | Bcrypt hash password admin |
+| `JWT_SECRET` | Secret key untuk JWT token session |
+| `SANITY_WRITE_TOKEN` | API token Sanity untuk write operations |
 
-### backend/ (terpisah)
+### backend/ (terpisah — TryOut)
 
 | Variable | Fungsi |
 |---|---|
 | `SECRET_KEY` | Django secret key |
 | `DEBUG` | Django debug mode |
-| `DATABASE_URL` | URL koneksi database (PostgreSQL untuk production) |
+| `DATABASE_URL` | URL koneksi database |
 
-### frontend/ (terpisah)
+### frontend/ (terpisah — TryOut)
 
 | Variable | Fungsi |
 |---|---|
@@ -211,106 +281,115 @@ User Browser → scholarify.id
 
 ---
 
-## g. Cara Update Konten (untuk Client)
+## i. Cara Update Konten (untuk Client)
 
-1. **Login Admin:**
-   - Buka scholarify.id
-   - Klik ikon user di pojok kanan atas navbar → "Login Admin"
-   - Masukkan password admin
+### Login Admin
+1. Buka `scholarify.id`
+2. Klik **"Login"** di navbar → masuk ke `/login`
+3. Masukkan password admin → otomatis redirect ke landing page dengan admin panel aktif
 
-2. **Setelah login:**
-   - Tombol "Tambah Mentor", "Tambah Testimoni", "Tambah Berita" akan muncul di masing-masing section
-   - Arahkan mouse ke kartu mentor/testimoni/berita untuk melihat tombol Edit/Hapus
+### Setelah Login
+- Tombol **"Tambah Mentor"**, **"Tambah Testimoni"**, **"Tambah Berita"** muncul di masing-masing section
+- Hover kartu mentor/testimoni/berita untuk melihat tombol **Edit** / **Hapus**
 
-3. **Tambah Mentor:**
-   - Klik "+ Tambah Mentor" atau "+ Tambah Tim Inti" di section Tim
-   - Isi: Nama, Jabatan, Kampus, Kategori (Tim Inti/Tim Mentor)
-   - Upload foto mentor dan logo kampus (opsional)
-   - Klik "Tambah"
+### Tambah Berita (dengan Rich Text Editor)
+1. Klik **"+ Tambah Berita"**
+2. Isi judul, ringkasan, tanggal, urutan
+3. Gunakan editor rich text (Quill) untuk isi lengkap:
+   - Format teks: Bold, Italic, Underline, Strikethrough, Code
+   - Headings: pilih H1/H2/H3 dari dropdown
+   - Alignment: pilih Left/Center/Right/Justify dari dropdown
+   - Lists: Ordered atau Bullet
+   - Blockquote, Code Block
+   - Insert link atau upload gambar
+4. Upload gambar sampul (opsional)
+5. Klik **"Tambah"**
 
-4. **Edit/Hapus Mentor:**
-   - Hover kartu mentor → klik "✎ Edit" atau "✕ Hapus"
-   - Edit: ubah field yang perlu, upload foto baru jika ingin ganti
-   - Hapus: konfirmasi dengan klik "Ya, Hapus"
+### Edit/Hapus Konten
+- **Edit:** Hover kartu → klik "✎ Edit" → ubah field → klik "Update"
+- **Hapus:** Hover kartu → klik "✕ Hapus" → konfirmasi "Ya, Hapus"
 
-5. **Testimoni & Berita:** Sama seperti Mentor, gunakan tombol yang muncul setelah login admin
-
-6. **Catatan:**
-   - Gambar diupload langsung ke Sanity asset library
-   - Data mentor/testimoni/berita yang sudah dihapus tidak bisa dikembalikan
-   - Perubahan akan tampil langsung di halaman (ada delay ~1-2 detik untuk refresh)
+### Catatan
+- Gambar diupload langsung ke Sanity asset library
+- Data yang sudah dihapus tidak bisa dikembalikan
+- Perubahan tampil langsung (delay ~1-2 detik untuk refresh)
 
 ---
 
-## h. Cara Ganti Password Admin
+## j. Cara Ganti Password Admin
 
 1. **Generate hash baru:**
    ```bash
    cd landing-page
    node generate-hash.js "password_baru_anda"
    ```
-2. **Output:** Akan muncul `ADMIN_PASSWORD_HASH: $2a$12$...`
-3. **Update di Vercel:**
-   - Buka [vercel.com](https://vercel.com) → project Scholarify → Settings → Environment Variables
+2. **Update di Vercel:**
+   - Buka Vercel → project Scholarify → Settings → Environment Variables
    - Update `ADMIN_PASSWORD_HASH` dengan hash baru
-   - Hapus yang lama, simpan
-4. **Redeploy:**
-   - Di Vercel dashboard → Deployments → trigger redeploy (atau push commit baru)
-5. **Selesai.** Password lama tidak akan bisa digunakan lagi.
+3. **Redeploy:**
+   - Push commit baru atau trigger manual redeploy di Vercel dashboard
 
 ---
 
-## i. Domain & Hosting
+## k. Domain & Hosting
 
 - **Domain:** `scholarify.id` — registrasi di Hostinger
-- **DNS Configuration:**
-  - A record →指向 IP Vercel (76.76.21.21)
+- **DNS:**
+  - A record → IP Vercel (76.76.21.21)
   - CNAME `www` → `cname.vercel-dns.com`
 - **Hosting:** Vercel Hobby (gratis)
-  - **Kuota:** 100 GB bandwidth, 600 build minutes per bulan
-  - **ToS:** Hobby plan untuk project non-komersial / personal
-  - **Serverless Functions:** 10 detik execution timeout, 500 MB memory
+  - 100 GB bandwidth, 600 build minutes/bulan
+  - Serverless Functions: 10 detik timeout, 500 MB memory
 - **Deploy:** Auto-deploy dari git (push ke branch main)
 
+### Vercel Settings
+- **Deployment Protection:** Harus **DISABLED** agar `/api/*` routes bisa diakses dari browser
+- **Clean URLs:** Aktif via `vercel.json` (`cleanUrls: true`)
+
 ---
 
-## j. Known Issues / Technical Debt
+## l. Known Issues / Technical Debt
 
 1. **Sistem TryOut (frontend/ + backend/) belum terintegrasi**
-   - Landing page saat ini menunjuk ke `https://e-ujian.com/Scholarify` untuk TryOut
-   - frontend/ (Next.js + Django backend) adalah sistem TryOut terpisah yang belum diintegrasikan
-   - **To-do:** Integrasi frontend/backend TryOut ke scholarify.id dengan SSO atau redirect system
+   - Landing page menunjuk ke `https://e-ujian.com/Scholarify` untuk TryOut
+   - **To-do:** Integrasi ke scholarify.id dengan SSO atau redirect
 
-2. **Admin panel in-browser (no dedicated admin page)**
-   - Admin login dan CRUD dilakukan via modal di landing page
-   - Tidak ada halaman admin terpisah
-
-3. **Password admin terbatas (single user)**
+2. **Password admin terbatas (single user)**
    - Hanya satu password admin global, no multi-admin, no roles
 
-4. **Rate limiter in-memory**
-   - Rate limiter login menggunakan Map di memori — akan reset jika serverless function cold start
+3. **Rate limiter in-memory**
+   - Rate limiter login menggunakan Map di memori — reset saat cold start
 
-5. **No dark mode toggle active**
-   - CSS dark mode variables sudah ada (`.dark`) tapi belum ada toggle UI aktif
+4. **No dark mode toggle active**
+   - CSS dark mode variables ada (`.dark`) tapi belum ada toggle UI
 
-6. **Sisa legacy CSS**
-   - `style.css` masih mengandung banyak class legacy yang tidak terpakai (program-tile, modal versi lama, testimonial desain lama). Tidak dihapus untuk menghindari risiko.
+5. **Sisa legacy CSS**
+   - `style.css` mengandung banyak class legacy yang tidak terpakai (dihapus untuk hindari risiko)
 
-7. **Folder nginx/ kosong**
-   - Tidak ada konfigurasi di dalamnya.
+6. **Vercel Deployment Protection**
+   - Harus disabled manual di dashboard untuk allow API calls dari browser
 
 ---
 
-## k. Changelog
+## m. Changelog
 
 | Tanggal | Perubahan |
 |---|---|
-| 2025-12 (perkiraan) | Project awal — landing page statis + sistem TryOut (frontend Next.js + Django backend) |
-| 2026 | Integrasi Sanity CMS untuk konten Mentor, Testimoni |
-| 2026 | Penambahan CRUD API (serverless functions) untuk admin panel |
+| 2025-12 | Project awal — landing page statis + sistem TryOut |
+| 2026 | Integrasi Sanity CMS untuk Mentor, Testimoni |
+| 2026 | Penambahan CRUD API (serverless functions) |
 | 2026 | Penambahan schema & section Berita |
-| 2026 | Custom admin panel (in-browser modal login + CRUD) |
-| 2026 | Custom domain scholarify.id (Hostinger → Vercel) |
-| 2026 | Redesign hero, navbar, footer cinematic, CTA section |
-| 2026-07 | Final cleanup: hapus asset gambar lama (foto mentor pre-Sanity, SVG/icons tidak terpakai), dokumentasi PROJECT-SUMMARY.md |
+| 2026 | Custom admin panel (modal login + CRUD) |
+| 2026 | Custom domain scholarify.id |
+| 2026 | Redesign hero, navbar, footer, CTA |
+| 2026-07 | Final cleanup: hapus asset lama, dokumentasi |
+| 2026-09 | **Separate section pages** — layanan, program, tim, testimoni, kontak jadi halaman terpisah |
+| 2026-09 | **Blog/berita pages** — blog.html (listing), berita.html (detail) dengan rich text rendering |
+| 2026-09 | **Clean URLs** — vercel.json `cleanUrls: true` + rewrites untuk semua halaman, semua internal link updated |
+| 2026-09 | **Dedicated login page** — login.html di `/login` dengan password show/hide toggle |
+| 2026-09 | **Admin state management fix** — `checkSession()` = source of truth, localStorage hanya hint, admin panel via CSS opacity toggle |
+| 2026-09 | **Quill rich text editor** — headings (H1-H3), alignment (center/right/justify), ordered/bullet lists, blockquote, code block, image upload, links, clear formatting |
+| 2026-09 | **Admin CRUD fixes** — `waitForCardsAndInject()` polling, `refreshScholarifyData` wrapper, fix `continue` → `return` syntax error |
+| 2026-09 | **textToBlocks fix** — handles JSON array from Quill OR plain text input |
+| 2026-09 | **berita.html rendering** — h1-h4 support, proper ol/ul list rendering, alignment rendering (`block.data.alignment`) |
+| 2026-09 | **Vercel Deployment Protection** — disabled in dashboard to allow `/api/*` routes |
